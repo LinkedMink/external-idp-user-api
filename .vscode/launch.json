@@ -1,0 +1,31 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to Container",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "address": "localhost",
+      "port": 9229,
+      "localRoot": "${workspaceFolder}/dist",
+      "remoteRoot": "/home/node/app/dist",
+      "outFiles": ["${workspaceFolder}/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+    },
+    {
+      "command": "npm start",
+      "name": "Run Server",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "npm run test:debug",
+      "name": "Run Unit Test",
+      "request": "launch",
+      "type": "node-terminal"
+    }
+  ]
+}

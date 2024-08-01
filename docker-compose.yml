@@ -1,0 +1,58 @@
+services:
+  api:
+    image: external-idp-user-api
+    build:
+      context: .
+      target: application
+      tags:
+        - alpine
+    command: node --enable-source-maps --inspect=0.0.0.0:9229 dist/main.js
+    ports:
+      - "127.0.0.1:3000:3000/tcp"
+      - "127.0.0.1:9229:9229/tcp"
+    env_file:
+      - .env
+    volumes:
+      - type: bind
+        source: ./ca.secp384r1.crt
+        target: /etc/ssl/certs/ca.secp384r1.crt
+        read_only: true
+    secrets:
+      - source: jws-key
+        target: jws.secp521r1.key
+    develop:
+      watch:
+        - action: rebuild
+          path: src
+        - action: rebuild
+          path: package-lock.json tsconfig.json nest-cli.json
+
+  api-watch:
+    image: external-idp-user-api-watch
+    build:
+      context: .
+      target: watch
+    ports:
+      - "127.0.0.1:3000:3000/tcp"
+      - "127.0.0.1:9229:9229/tcp"
+    env_file:
+      - .env
+    volumes:
+      - type: bind
+        source: ./ca.secp384r1.crt
+        target: /etc/ssl/certs/ca.secp384r1.crt
+        read_only: true
+    secrets:
+      - source: jws-key
+        target: jws.secp521r1.key
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /home/node/app/src
+        - action: rebuild
+          path: package-lock.json tsconfig.json nest-cli.json
+
+secrets:
+  jws-key:
+    file: ./jws.secp521r1.key
