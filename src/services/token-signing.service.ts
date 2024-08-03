@@ -1,9 +1,8 @@
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { KeyLike, SignJWT, jwtVerify } from "jose";
+import { errors, jwtVerify, KeyLike, SignJWT } from "jose";
 import { createPrivateKey } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { signingConfigLoad, SigningConfigType } from "../config/signing.config";
-import { JOSEError } from "jose/dist/types/util/errors";
 
 @Injectable()
 export class TokenSigningService implements OnModuleInit {
@@ -48,7 +47,13 @@ export class TokenSigningService implements OnModuleInit {
 
       return result.payload;
     } catch (error) {
-      if (error instanceof JOSEError) {
+      if (
+        error instanceof errors.JWTExpired ||
+        error instanceof errors.JWTClaimValidationFailed ||
+        error instanceof errors.JWTInvalid ||
+        error instanceof errors.JWSSignatureVerificationFailed ||
+        error instanceof errors.JWSInvalid
+      ) {
         this.logger.warn(`${error.name}: ${error.code} ${error.message}`);
         return null;
       }

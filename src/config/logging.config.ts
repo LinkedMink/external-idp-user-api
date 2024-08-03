@@ -21,12 +21,13 @@ const OrderedLogLevelsMap = new Map<LogLevel, [NestLogLevel[], Prisma.LogLevel]>
   ["debug", [["verbose", "debug"], "query"]],
 ]);
 
-const loggingConfigSchema = stringToJsonSchema.pipe(
+const loggingConfigSchema = stringToJsonSchema.optional().pipe(
   z
     .object({
       level: z.enum(Object.keys(LogLevels) as ["error", "warn", "info", "debug"]).default("info"),
       isStackTraceLogged: z.boolean().default(process.env.NODE_ENV !== "production"),
     })
+    .optional()
     .transform(config => ({
       ...config,
       orderedLogLevelsMap: OrderedLogLevelsMap,
