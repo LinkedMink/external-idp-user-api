@@ -12,6 +12,8 @@ import { PasswordService } from "./services/password.service";
 import { PrismaService } from "./services/prisma.service";
 import { TokenSigningService } from "./services/token-signing.service";
 import { UserService } from "./services/user.service";
+import { APP_GUARD } from "@nestjs/core";
+import { AuthenticationGuard } from "./framework/authentication.guard";
 
 @Module({
   imports: [
@@ -24,6 +26,16 @@ import { UserService } from "./services/user.service";
     }),
   ],
   controllers: [AppController, LoginController, UsersController],
-  providers: [LoginService, PasswordService, PrismaService, TokenSigningService, UserService],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthenticationGuard,
+    },
+    LoginService,
+    PasswordService,
+    PrismaService,
+    TokenSigningService,
+    UserService,
+  ],
 })
 export class AppModule {}

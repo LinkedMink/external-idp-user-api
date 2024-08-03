@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { PasswordService } from "./password.service";
 import { TokenSigningService } from "./token-signing.service";
 import { UserService } from "./user.service";
@@ -12,6 +12,8 @@ const GENERIC_ERROR: ValidationErrorDto = {
 
 @Injectable()
 export class LoginService {
+  private readonly logger = new Logger(LoginService.name);
+
   constructor(
     private readonly tokenSigningService: TokenSigningService,
     private readonly passwordService: PasswordService,
@@ -21,6 +23,9 @@ export class LoginService {
   async login(dto: PasswordLoginDto) {
     const user = await this.userService.findByUsername(dto.username);
     if (!user || !user.passwordHash || !user.passwordSalt) {
+      this.logger.verbose(
+        `Login attempt ${!user ? `for not-existent user: ${dto.username}` : "for user without password"}`
+      );
       throw new BadRequestException(GENERIC_ERROR);
     }
 
@@ -28,6 +33,7 @@ export class LoginService {
       if (user.isLockedUntil && Date.now() > user.isLockedUntil.getTime()) {
         this.userService.unlockUser(user.id);
       } else {
+        this.logger.verbose(`Login attempt from locked account: userId=${user.id}`);
         throw new BadRequestException(GENERIC_ERROR);
       }
     }
@@ -38,6 +44,7 @@ export class LoginService {
       user.passwordHash
     );
     if (!isPasswordMatch) {
+      this.logger.verbose(`Login attempt with mismatched password: userId=${user.id}`);
       throw new BadRequestException(GENERIC_ERROR);
     }
 

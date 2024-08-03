@@ -1,8 +1,9 @@
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { KeyLike, SignJWT } from "jose";
+import { KeyLike, SignJWT, jwtVerify } from "jose";
 import { createPrivateKey } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { signingConfigLoad, SigningConfigType } from "../config/signing.config";
+import { JOSEError } from "jose/dist/types/util/errors";
 
 @Injectable()
 export class TokenSigningService implements OnModuleInit {
@@ -15,7 +16,7 @@ export class TokenSigningService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    this.logger.verbose(
+    this.logger.log(
       `Loading signing key: alg=${this.signingConfig.signingAlgorithm}, file=${this.signingConfig.signingKeyFilePath}`
     );
 
@@ -36,5 +37,23 @@ export class TokenSigningService implements OnModuleInit {
     }
 
     return signJwt.sign(this.signingKey);
+  }
+
+  async verify(token: string) {
+    try {
+      const result = await jwtVerify(token, this.signingKey, {
+        algorithms: [this.signingConfig.signingAlgorithm],
+        issuer: this.signingConfig.issuer,
+      });
+
+      return result.payload;
+    } catch (error) {
+      if (error instanceof JOSEError) {
+        this.logger.warn(`${error.name}: ${error.code} ${error.message}`);
+        return null;
+      }
+
+      throw error;
+    }
   }
 }
