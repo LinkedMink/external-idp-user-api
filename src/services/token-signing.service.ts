@@ -24,8 +24,8 @@ export class TokenSigningService implements OnModuleInit {
     this.signingKey = createPrivateKey(keyData);
   }
 
-  async sign(subject?: string) {
-    const signJwt = new SignJWT()
+  async sign(subject?: string, claims?: Record<string, unknown>) {
+    const signJwt = new SignJWT(claims)
       .setProtectedHeader({ alg: this.signingConfig.signingAlgorithm })
       .setIssuedAt()
       .setIssuer(this.signingConfig.issuer)

@@ -8,7 +8,7 @@ import {
 import { Reflector } from "@nestjs/core";
 import { TokenSigningService } from "../services/token-signing.service";
 import { IS_ANONYMOUS_ALLOWED_KEY } from "./authentication.decorator";
-import { RequestWithJwt } from "./authentication.types";
+import { RequestWithJwt } from "../interfaces/request.types";
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {

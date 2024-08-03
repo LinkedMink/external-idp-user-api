@@ -2,7 +2,7 @@ import { Injectable, CanActivate, ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { CLAIMS_KEY } from "./authentication.decorator";
 import { Claim } from "../config/user.const";
-import { ResponseWithJwt } from "./authentication.types";
+import { ResponseWithJwt } from "../interfaces/request.types";
 
 @Injectable()
 export class ClaimsGuard implements CanActivate {
