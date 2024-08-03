@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  // TODO support multiple database types
   // output   = "../node_modules/@prisma/"
 }
 

@@ -4,6 +4,7 @@ import { TokenSigningService } from "./token-signing.service";
 import { UserService } from "./user.service";
 import { PasswordLoginDto } from "../dto/login.dto";
 import { ValidationErrorDto } from "../dto/errors.dto";
+import { LoginMethods } from "../config/user.const";
 
 const GENERIC_ERROR: ValidationErrorDto = {
   formErrors: ["Entered credentials are incorrect"],
@@ -48,8 +49,8 @@ export class LoginService {
       throw new BadRequestException(GENERIC_ERROR);
     }
 
-    // TODO save token
     const token = await this.tokenSigningService.sign(user.username);
+    await this.userService.createToken(user.id, LoginMethods.PASSWORD, token);
 
     return { token };
   }

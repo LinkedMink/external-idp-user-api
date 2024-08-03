@@ -5,22 +5,10 @@ import {
   Logger,
   UnauthorizedException,
 } from "@nestjs/common";
-import type { Request } from "express";
-import type { Query } from "express-serve-static-core";
-import { TokenSigningService } from "../services/token-signing.service";
-import type { JWTPayload } from "jose";
 import { Reflector } from "@nestjs/core";
+import { TokenSigningService } from "../services/token-signing.service";
 import { IS_ANONYMOUS_ALLOWED_KEY } from "./authentication.decorator";
-
-type RequestWithJwt = Request<
-  {
-    [key: string]: string;
-  },
-  unknown,
-  unknown,
-  Query,
-  { user: JWTPayload }
->;
+import { RequestWithJwt } from "./authentication.types";
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
@@ -40,7 +28,7 @@ export class AuthenticationGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getResponse() as RequestWithJwt;
+    const request = context.switchToHttp().getRequest<RequestWithJwt>();
 
     const [type, token] = request.headers.authorization?.split(" ") ?? [];
     if (!token || type !== "Bearer") {
