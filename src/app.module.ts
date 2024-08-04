@@ -15,6 +15,7 @@ import { PasswordService } from "./services/password.service";
 import { PrismaService } from "./services/prisma.service";
 import { TokenSigningService } from "./services/token-signing.service";
 import { UserService } from "./services/user.service";
+import { UserContextService } from "./services/user-context.service";
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { UserService } from "./services/user.service";
     PasswordService,
     PrismaService,
     TokenSigningService,
+    UserContextService,
     UserService,
   ],
 })

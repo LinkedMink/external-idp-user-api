@@ -43,7 +43,7 @@ export class LoginService {
       }
     }
 
-    const isPasswordMatch = this.passwordService.compareHash(
+    const isPasswordMatch = await this.passwordService.compareHash(
       dto.password,
       user.passwordSalt,
       user.passwordHash

@@ -15,6 +15,7 @@ export class UserService {
   // TODO add options
   private static readonly LockoutTimeoutMs = 60 * 60 * 1000;
   private static readonly FailedCountMax = 10;
+  private static readonly DefaultModifiedBy = "system";
 
   constructor(
     private readonly prismaService: PrismaService,
@@ -33,13 +34,13 @@ export class UserService {
     return this.prismaService.user.findUnique({ where: { username }, include: { claims: true } });
   }
 
-  async create(dto: UserCreateDto) {
+  async create(dto: UserCreateDto, modifiedBy = UserService.DefaultModifiedBy) {
     const password = await this.passwordService.createHash(dto.password);
     const resultPromise = this.prismaService.user.create({
+      include: { claims: true },
       data: {
-        // TODO
-        createdBy: "",
-        updatedBy: "",
+        createdBy: modifiedBy,
+        updatedBy: modifiedBy,
         username: dto.username,
         passwordHash: password.hash,
         passwordSalt: password.salt,
@@ -52,7 +53,7 @@ export class UserService {
     return resolveOrHandleDbError(resultPromise, handleDuplicateRecord);
   }
 
-  async update(id: number, dto: UserUpdateDto) {
+  async updateById(id: number, dto: UserUpdateDto, modifiedBy = UserService.DefaultModifiedBy) {
     const password = dto.password ? await this.passwordService.createHash(dto.password) : undefined;
     const claims: Prisma.UserClaimUpdateManyWithoutUserNestedInput | undefined = dto.claims
       ? {
@@ -61,14 +62,18 @@ export class UserService {
             update: { key, value },
             create: { key, value },
           })),
+          deleteMany: {
+            userId: id,
+            key: { notIn: Object.keys(dto.claims) },
+          },
         }
       : undefined;
 
     const resultPromise = this.prismaService.user.update({
       where: { id },
+      include: { claims: true },
       data: {
-        // TODO
-        updatedBy: "",
+        updatedBy: modifiedBy,
         username: dto.username,
         passwordHash: password?.hash,
         passwordSalt: password?.salt,
@@ -79,8 +84,11 @@ export class UserService {
     return resolveOrHandleDbError(resultPromise, handleNotFound, handleDuplicateRecord);
   }
 
-  delete(id: number) {
-    const resultPromise = this.prismaService.user.delete({ where: { id } });
+  deleteById(id: number) {
+    const resultPromise = this.prismaService.user.delete({
+      where: { id },
+      include: { claims: true },
+    });
     return resolveOrHandleDbError(resultPromise, handleNotFound);
   }
 
@@ -88,6 +96,7 @@ export class UserService {
     return this.prismaService.user.update({
       where: { id },
       data: {
+        updatedBy: UserService.DefaultModifiedBy,
         accessFailedCount: null,
         tokens: {
           create: {
@@ -103,6 +112,7 @@ export class UserService {
     return this.prismaService.user.update({
       where: { id },
       data: {
+        updatedBy: UserService.DefaultModifiedBy,
         isLocked: true,
         isLockedUntil: isIndefinite ? null : UserService.getLockedUntil(),
         accessFailedCount: null,
@@ -113,7 +123,12 @@ export class UserService {
   unlockUser(id: number) {
     return this.prismaService.user.update({
       where: { id },
-      data: { isLocked: false, isLockedUntil: null, accessFailedCount: null },
+      data: {
+        updatedBy: UserService.DefaultModifiedBy,
+        isLocked: false,
+        isLockedUntil: null,
+        accessFailedCount: null,
+      },
     });
   }
 
@@ -124,7 +139,7 @@ export class UserService {
 
     return this.prismaService.user.update({
       where: { id },
-      data: { accessFailedCount },
+      data: { updatedBy: UserService.DefaultModifiedBy, accessFailedCount },
     });
   }
 

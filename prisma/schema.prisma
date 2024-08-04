@@ -41,7 +41,7 @@ model UserClaim {
   key    String
   value  String
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict)
 
   @@id(fields: [userId, key])
   @@map("user_claims")
@@ -53,7 +53,7 @@ model UserToken {
   loginMethod String   @map("login_method")
   value       String
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict)
 
   @@id(fields: [userId, createdAt])
   @@map("user_tokens")

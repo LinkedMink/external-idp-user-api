@@ -23,7 +23,8 @@ export class PrismaService
     });
 
     Array.from(loggingConfig.orderedLogLevelsMap).forEach(levelMapEntry => {
-      const [[nestLevel], prismaLevel] = levelMapEntry[1];
+      const [nestLevels, prismaLevel] = levelMapEntry[1];
+      const nestLevel = nestLevels[nestLevels.length - 1];
       this.$on(prismaLevel, event => this.logger[nestLevel](event));
     });
   }

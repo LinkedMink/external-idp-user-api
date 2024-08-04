@@ -5,7 +5,11 @@ export const LoginMethods = {
 export type LoginMethod = (typeof LoginMethods)[keyof typeof LoginMethods];
 
 export const Claims = {
-  USER_ADMIN: "userAdmin",
+  USERS: "users",
+} as const;
+
+export const ClaimsAccessLevel = {
+  ADMIN: "admin",
 } as const;
 
 export type Claim = (typeof Claims)[keyof typeof Claims];
