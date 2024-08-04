@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { LoginMethod } from "../config/user.const";
+import { DEFAULT_MODIFIED_BY, LoginMethod } from "../config/user.const";
 import { UserCreateDto, UserUpdateDto } from "../dto/user.dto";
+import { IdDbModel, UserClaimsDbModel } from "../interfaces/db.types";
 import { PasswordService } from "./password.service";
 import {
   handleDuplicateRecord,
@@ -15,14 +16,13 @@ export class UserService {
   // TODO add options
   private static readonly LockoutTimeoutMs = 60 * 60 * 1000;
   private static readonly FailedCountMax = 10;
-  private static readonly DefaultModifiedBy = "system";
 
   constructor(
     private readonly prismaService: PrismaService,
     private readonly passwordService: PasswordService
   ) {}
 
-  findById(id: number) {
+  findById(id: number): Promise<UserClaimsDbModel> {
     const resultPromise = this.prismaService.user.findUniqueOrThrow({
       where: { id },
       include: { claims: true },
@@ -30,11 +30,11 @@ export class UserService {
     return resolveOrHandleDbError(resultPromise, handleNotFound);
   }
 
-  findByUsername(username: string) {
+  findByUsername(username: string): Promise<UserClaimsDbModel | null> {
     return this.prismaService.user.findUnique({ where: { username }, include: { claims: true } });
   }
 
-  async create(dto: UserCreateDto, modifiedBy = UserService.DefaultModifiedBy) {
+  async create(dto: UserCreateDto, modifiedBy = DEFAULT_MODIFIED_BY): Promise<UserClaimsDbModel> {
     const password = await this.passwordService.createHash(dto.password);
     const resultPromise = this.prismaService.user.create({
       include: { claims: true },
@@ -53,7 +53,11 @@ export class UserService {
     return resolveOrHandleDbError(resultPromise, handleDuplicateRecord);
   }
 
-  async updateById(id: number, dto: UserUpdateDto, modifiedBy = UserService.DefaultModifiedBy) {
+  async updateById(
+    id: number,
+    dto: UserUpdateDto,
+    modifiedBy = DEFAULT_MODIFIED_BY
+  ): Promise<UserClaimsDbModel> {
     const password = dto.password ? await this.passwordService.createHash(dto.password) : undefined;
     const claims: Prisma.UserClaimUpdateManyWithoutUserNestedInput | undefined = dto.claims
       ? {
@@ -84,19 +88,20 @@ export class UserService {
     return resolveOrHandleDbError(resultPromise, handleNotFound, handleDuplicateRecord);
   }
 
-  deleteById(id: number) {
+  deleteById(id: number): Promise<IdDbModel> {
     const resultPromise = this.prismaService.user.delete({
+      select: { id: true },
       where: { id },
-      include: { claims: true },
     });
     return resolveOrHandleDbError(resultPromise, handleNotFound);
   }
 
-  createToken(id: number, loginMethod: LoginMethod, value: string) {
+  createToken(id: number, loginMethod: LoginMethod, value: string): Promise<IdDbModel> {
     return this.prismaService.user.update({
+      select: { id: true },
       where: { id },
       data: {
-        updatedBy: UserService.DefaultModifiedBy,
+        updatedBy: DEFAULT_MODIFIED_BY,
         accessFailedCount: null,
         tokens: {
           create: {
@@ -108,11 +113,12 @@ export class UserService {
     });
   }
 
-  lockUser(id: number, isIndefinite = false) {
+  lockUser(id: number, isIndefinite = false): Promise<IdDbModel> {
     return this.prismaService.user.update({
+      select: { id: true },
       where: { id },
       data: {
-        updatedBy: UserService.DefaultModifiedBy,
+        updatedBy: DEFAULT_MODIFIED_BY,
         isLocked: true,
         isLockedUntil: isIndefinite ? null : UserService.getLockedUntil(),
         accessFailedCount: null,
@@ -120,11 +126,12 @@ export class UserService {
     });
   }
 
-  unlockUser(id: number) {
+  unlockUser(id: number): Promise<IdDbModel> {
     return this.prismaService.user.update({
+      select: { id: true },
       where: { id },
       data: {
-        updatedBy: UserService.DefaultModifiedBy,
+        updatedBy: DEFAULT_MODIFIED_BY,
         isLocked: false,
         isLockedUntil: null,
         accessFailedCount: null,
@@ -132,14 +139,15 @@ export class UserService {
     });
   }
 
-  setAccessFailedCount(id: number, accessFailedCount: number) {
+  setAccessFailedCount(id: number, accessFailedCount: number): Promise<IdDbModel> {
     if (accessFailedCount > UserService.FailedCountMax) {
       return this.lockUser(id);
     }
 
     return this.prismaService.user.update({
+      select: { id: true },
       where: { id },
-      data: { updatedBy: UserService.DefaultModifiedBy, accessFailedCount },
+      data: { updatedBy: DEFAULT_MODIFIED_BY, accessFailedCount },
     });
   }
 

@@ -39,7 +39,13 @@ export class LoginService {
         this.userService.unlockUser(user.id);
       } else {
         this.logger.verbose(`Login attempt from locked account: userId=${user.id}`);
-        this.handleFailedAttempt(user);
+        const error: ValidationErrorDto = {
+          formErrors: [
+            `The user has been locked${user.isLockedUntil ? ` until ${user.isLockedUntil.toISOString()}.` : ". Contact an administrator."}`,
+          ],
+          fieldErrors: {},
+        };
+        this.handleFailedAttempt(user, error);
       }
     }
 
@@ -60,11 +66,11 @@ export class LoginService {
     return { token };
   }
 
-  private handleFailedAttempt(user: UserDbModel): never {
+  private handleFailedAttempt(user: UserDbModel, error = GENERIC_ERROR): never {
     this.userService.setAccessFailedCount(
       user.id,
       user.accessFailedCount ? user.accessFailedCount + 1 : 1
     );
-    throw new BadRequestException(GENERIC_ERROR);
+    throw new BadRequestException(error);
   }
 }

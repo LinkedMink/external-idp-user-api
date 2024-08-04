@@ -1,3 +1,5 @@
+export const DEFAULT_MODIFIED_BY = "system";
+
 export const LoginMethods = {
   PASSWORD: "password",
 } as const;

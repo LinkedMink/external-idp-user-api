@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Docker Watch Dev",
+      "type": "shell",
+      "command": "docker compose up --build --watch -- api-watch",
+      "dependsOn": ["Docker Stop"],
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "."
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*File change detected\\. Starting incremental compilation\\.\\.\\.",
+          "endsPattern": "^.*Debugger listening on ws:"
+        }
+      }
+    },
+    {
+      "label": "Docker Watch Deployed",
+      "type": "shell",
+      "command": "docker compose up --build --watch -- api",
+      "dependsOn": ["Docker Stop"],
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "."
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Rebuilding service \".*\" after changes were detected\\.\\.\\.",
+          "endsPattern": "^.*Debugger listening on ws:"
+        }
+      }
+    },
+    {
+      "label": "Docker Stop",
+      "type": "shell",
+      "command": "docker compose stop -- api api-watch"
+    }
+  ]
+}

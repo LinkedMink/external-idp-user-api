@@ -9,7 +9,6 @@ export class UserContextService {
     if (!this.userValue) {
       throw new Error("The user context hasn't been set by authentication before being accessed");
     }
-
     return this.userValue;
   }
 
@@ -17,7 +16,6 @@ export class UserContextService {
     if (this.userValue) {
       throw new Error("The user context should only be set once after authentication");
     }
-
     this.userValue = value;
   }
 }

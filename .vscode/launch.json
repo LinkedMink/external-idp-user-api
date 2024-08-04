@@ -5,18 +5,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Attach to Container",
-      "request": "attach",
-      "skipFiles": ["<node_internals>/**"],
-      "type": "node",
-      "address": "localhost",
-      "port": 9229,
-      "restart": true,
-      "localRoot": "${workspaceFolder}/dist",
-      "remoteRoot": "/home/node/app/dist",
-      "outFiles": ["${workspaceFolder}/dist/**/*.js", "!**/node_modules/**"]
-    },
-    {
       "command": "npm run start:dev",
       "name": "Run Server",
       "request": "launch",
@@ -33,6 +21,43 @@
       "name": "Run Unit Test",
       "request": "launch",
       "type": "node-terminal"
+    },
+    {
+      "name": "Attach Container",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "address": "localhost",
+      "port": 9229,
+      "localRoot": "${workspaceFolder}/dist",
+      "remoteRoot": "/home/node/app/dist",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+    },
+    {
+      "name": "Launch Container Dev",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "address": "localhost",
+      "port": 9229,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/dist",
+      "remoteRoot": "/home/node/app/dist",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "Docker Watch Dev"
+    },
+    {
+      "name": "Launch Container Deployed",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "address": "localhost",
+      "port": 9229,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/dist",
+      "remoteRoot": "/home/node/app/dist",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "Docker Watch Deployed"
     }
   ],
   "inputs": [

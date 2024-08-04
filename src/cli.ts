@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env ts-node
 
 import { INestApplicationContext } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -18,7 +18,7 @@ const appAction =
     await app.close();
   };
 
-async function bootstrap() {
+async function main() {
   const addUser = new Command("add")
     .description("Add an admin user that can create/update other users")
     .argument("<username>", "The name to find this user by")
@@ -52,8 +52,11 @@ async function bootstrap() {
       })
     );
 
-  const cli = new Command("npx ts-node src/cli").addCommand(addUser).addCommand(deleteUser);
+  const cli = new Command("npx external-idp-user-cli")
+    .description("Utility functions that can setup data before operating")
+    .addCommand(addUser)
+    .addCommand(deleteUser);
   await cli.parseAsync();
 }
 
-void bootstrap();
+void main();

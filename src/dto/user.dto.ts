@@ -15,9 +15,7 @@ export const userUpdateDtoSchema = userCreateDtoSchema.partial();
 export type UserCreateDto = z.infer<typeof userCreateDtoSchema>;
 export type UserUpdateDto = z.infer<typeof userUpdateDtoSchema>;
 
-export type UserResponseDto = Omit<
-  UserClaimsDbModel,
-  "claims" | "passwordHash" | "passwordSalt"
-> & {
+export type UserResponseDto = Omit<UserClaimsDbModel, "claims" | "passwordHash" | "passwordSalt">;
+export type UserClaimsResponseDto = UserResponseDto & {
   claims: Record<string, string>;
 };

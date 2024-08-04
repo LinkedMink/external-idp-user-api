@@ -2,7 +2,7 @@ import { CacheModule } from "@nestjs/cache-manager";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
-import { redisStore } from "cache-manager-redis-yet";
+import { cacheConfigFactory, cacheConfigLoad } from "./config/cache.config";
 import { loggingConfigLoad } from "./config/logging.config";
 import { passwordConfigLoad } from "./config/password.config";
 import { signingConfigLoad } from "./config/signing.config";
@@ -17,17 +17,12 @@ import { PrismaService } from "./services/prisma.service";
 import { TokenSigningService } from "./services/token-signing.service";
 import { UserContextService } from "./services/user-context.service";
 import { UserService } from "./services/user.service";
-import { cacheConfigLoad, CacheConfigType } from "./config/cache.config";
 
 @Module({
   imports: [
     CacheModule.registerAsync({
       isGlobal: true,
-      useFactory: async (cacheConfig: CacheConfigType) => ({
-        ttl: cacheConfig.ttlMs,
-        max: cacheConfig.maxEntries,
-        store: cacheConfig.redis ? await redisStore(cacheConfig.redis) : undefined,
-      }),
+      useFactory: cacheConfigFactory,
       inject: [cacheConfigLoad.KEY],
     }),
     ConfigModule.forRoot({

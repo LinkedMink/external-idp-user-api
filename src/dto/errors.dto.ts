@@ -1,6 +1,8 @@
+import type { HttpStatus } from "@nestjs/common";
+
 export interface StatusCodeErrorDto {
   message: string;
-  statusCode: number;
+  statusCode: HttpStatus;
 }
 
 export interface ValidationErrorDto {

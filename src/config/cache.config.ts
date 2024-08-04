@@ -1,4 +1,7 @@
+import { CacheOptions } from "@nestjs/cache-manager";
 import { ConfigType, registerAs } from "@nestjs/config";
+import { StoreConfig } from "cache-manager";
+import { redisStore } from "cache-manager-redis-yet";
 import { z } from "zod";
 import { stringToJsonSchema } from "../utility/zod-schema";
 
@@ -20,3 +23,11 @@ export const cacheConfigLoad = registerAs("cache", () =>
 );
 
 export type CacheConfigType = ConfigType<typeof cacheConfigLoad>;
+
+export const cacheConfigFactory = async (
+  cacheConfig: CacheConfigType
+): Promise<CacheOptions<StoreConfig>> => ({
+  ttl: cacheConfig.ttlMs,
+  max: cacheConfig.maxEntries,
+  store: cacheConfig.redis ? await redisStore(cacheConfig.redis) : undefined,
+});
