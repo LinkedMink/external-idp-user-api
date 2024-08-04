@@ -11,13 +11,20 @@
       "type": "node",
       "address": "localhost",
       "port": 9229,
+      "restart": true,
       "localRoot": "${workspaceFolder}/dist",
       "remoteRoot": "/home/node/app/dist",
-      "outFiles": ["${workspaceFolder}/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+      "outFiles": ["${workspaceFolder}/dist/**/*.js", "!**/node_modules/**"]
     },
     {
-      "command": "npm start",
+      "command": "npm run start:dev",
       "name": "Run Server",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "npx ts-node src/cli ${input:cliCommandArgs}",
+      "name": "Run CLI",
       "request": "launch",
       "type": "node-terminal"
     },
@@ -26,6 +33,13 @@
       "name": "Run Unit Test",
       "request": "launch",
       "type": "node-terminal"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "cliCommandArgs",
+      "description": "Enter CLI arguments",
+      "type": "promptString"
     }
   ]
 }

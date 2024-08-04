@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // TODO support multiple database types
+  // output   = "../node_modules/@prisma/"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int       @id @default(autoincrement())
+  createdAt         DateTime  @default(now()) @map("created_at")
+  createdBy         String    @map("created_by")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  updatedBy         String    @map("updated_by")
+  username          String    @unique
+  passwordHash      Bytes?    @map("password_hash")
+  passwordSalt      Bytes?    @map("password_salt")
+  accessFailedCount Int?      @map("access_failed_count")
+  isLocked          Boolean   @map("is_locked")
+  isLockedUntil     DateTime? @map("is_locked_until")
+
+  claims UserClaim[]
+  tokens UserToken[]
+
+  @@index(fields: [createdAt])
+  @@index(fields: [updatedAt])
+  @@map("users")
+}
+
+model UserClaim {
+  userId Int    @map("user_id")
+  key    String
+  value  String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@id(fields: [userId, key])
+  @@map("user_claims")
+}
+
+model UserToken {
+  userId      Int      @map("user_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  loginMethod String   @map("login_method")
+  value       String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@id(fields: [userId, createdAt])
+  @@map("user_tokens")
+}

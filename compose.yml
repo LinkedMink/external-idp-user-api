@@ -1,34 +1,56 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "127.0.0.1:5432:5432/tcp"
+    env_file:
+      - config/postgres.env
+    volumes:
+      - type: volume
+        source: pgdata
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: ./config/init-db.sh
+        target: /docker-entrypoint-initdb.d/init-db.sh
+        read_only: true
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379/tcp"
+
   api:
     image: external-idp-user-api
     build:
       context: .
       target: application
-      tags:
-        - alpine
-    command: node --enable-source-maps --inspect=0.0.0.0:9229 dist/main.js
+    command: node --enable-source-maps --${INSPECT_TYPE:-inspect}=0.0.0.0:9229 dist/main.js
     ports:
       - "127.0.0.1:3000:3000/tcp"
       - "127.0.0.1:9229:9229/tcp"
     env_file:
       - .env
+      - config/api-docker.env
     volumes:
       - type: bind
-        source: ./ca.secp384r1.crt
+        source: ./config/ca.secp384r1.crt
         target: /etc/ssl/certs/ca.secp384r1.crt
         read_only: true
     secrets:
       - source: jws-key
         target: jws.secp521r1.key
+    depends_on:
+      - postgres
+      - redis
     develop:
       watch:
         - action: rebuild
           path: src
         - action: rebuild
-          path: package-lock.json tsconfig.json nest-cli.json
+          path: package-lock.json
 
   api-watch:
-    image: external-idp-user-api-watch
+    image: external-idp-user-api:dev
     build:
       context: .
       target: watch
@@ -37,22 +59,29 @@ services:
       - "127.0.0.1:9229:9229/tcp"
     env_file:
       - .env
+      - config/api-docker.env
     volumes:
       - type: bind
-        source: ./ca.secp384r1.crt
+        source: ./config/ca.secp384r1.crt
         target: /etc/ssl/certs/ca.secp384r1.crt
         read_only: true
     secrets:
       - source: jws-key
         target: jws.secp521r1.key
+    depends_on:
+      - postgres
+      - redis
     develop:
       watch:
         - action: sync
           path: ./src
           target: /home/node/app/src
         - action: rebuild
-          path: package-lock.json tsconfig.json nest-cli.json
+          path: package-lock.json
+
+volumes:
+  pgdata:
 
 secrets:
   jws-key:
-    file: ./jws.secp521r1.key
+    file: ./config/jws.secp521r1.key
