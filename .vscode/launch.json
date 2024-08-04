@@ -13,7 +13,7 @@
       "port": 9229,
       "localRoot": "${workspaceFolder}/dist",
       "remoteRoot": "/home/node/app/dist",
-      "outFiles": ["${workspaceFolder}/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+      "outFiles": ["${workspaceFolder}/dist/**/*.js", "!**/node_modules/**"]
     },
     {
       "command": "npm start",

@@ -1,15 +1,25 @@
+import { Inject, Injectable } from "@nestjs/common";
 import { BinaryLike, randomBytes, scrypt } from "node:crypto";
 import { promisify } from "node:util";
+import { passwordConfigLoad, PasswordConfigType } from "../config/password.config";
 
 const scryptAsync = promisify<BinaryLike, BinaryLike, number, Buffer>(scrypt);
 
+@Injectable()
 export class PasswordService {
-  createHash(password: string) {
-    const salt = randomBytes(32);
-    return scryptAsync(password, salt, 32);
+  constructor(
+    @Inject(passwordConfigLoad.KEY)
+    private readonly passwordConfig: PasswordConfigType
+  ) {}
+
+  async createHash(password: string) {
+    const salt = randomBytes(this.passwordConfig.saltBytes);
+    const hash = await scryptAsync(password, salt, this.passwordConfig.hashBytes);
+    return { salt, hash };
   }
 
-  async compareHash(password: string, salt: string, compareToHash: Buffer) {
-    return (await scryptAsync(password, salt, 32)) === compareToHash;
+  async compareHash(password: string, salt: Buffer, compareToHash: Buffer) {
+    const passwordHash = await scryptAsync(password, salt, this.passwordConfig.hashBytes);
+    return passwordHash.equals(compareToHash);
   }
 }
