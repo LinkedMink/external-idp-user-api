@@ -15,7 +15,20 @@ describe("AppController (e2e)", () => {
     await app.init();
   });
 
+  afterAll(() => app.close());
+
   it("/ (GET)", () => {
-    return request(app.getHttpServer()).get("/").expect(200).expect("Hello World!");
+    const testAgent = request(app.getHttpServer());
+
+    const result = testAgent.get("/");
+
+    return result.expect(200).expect(response => {
+      expect(response.body).toEqual({
+        timestamp: expect.stringMatching(
+          /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
+        ),
+        isHealthy: true,
+      });
+    });
   });
 });

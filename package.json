@@ -35,9 +35,10 @@
     "start:debug": "nest start --debug 0.0.0.0:9229 --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "test": "jest --watch",
+    "test": "jest --watch --reporters default",
     "test:ci": "jest --ci --silent --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:cov": "jest --coverage --reporters default",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand --reporters default",
     "test:e2e": "jest --config ./test/jest-e2e.config.ts",
     "prepare": "husky || cd ."
   },

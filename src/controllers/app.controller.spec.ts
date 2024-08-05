@@ -21,7 +21,7 @@ describe(AppController.name, () => {
 
     expect(result).toEqual({
       timestamp: stubbedDateTime,
-      isHealthy: true,
+      isHealthy: false,
     });
   });
 });

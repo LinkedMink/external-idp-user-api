@@ -8,7 +8,17 @@ const config: JestConfigWithTsJest = {
     "^.+\\.(t|j)s$": "ts-jest",
   },
   collectCoverageFrom: ["**/*.(t|j)s"],
+  coveragePathIgnorePatterns: ["cli/.*", ".*\\.module.ts"],
   coverageDirectory: "../coverage",
+  // coverageThreshold: {
+  //   global: {
+  //     branches: 75,
+  //     functions: 75,
+  //     lines: 75,
+  //     statements: 75,
+  //   },
+  // },
+  reporters: [["github-actions", { silent: false }], "summary"],
   testEnvironment: "node",
 };
 
