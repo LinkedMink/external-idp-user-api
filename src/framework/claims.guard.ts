@@ -10,10 +10,10 @@ export class ClaimsGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredClaims = this.reflector.getAllAndOverride<RequiredClaimsEntries>(CLAIMS_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredClaims = this.reflector.getAllAndOverride<RequiredClaimsEntries | undefined>(
+      CLAIMS_KEY,
+      [context.getHandler(), context.getClass()]
+    );
 
     if (!requiredClaims) {
       return true;

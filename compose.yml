@@ -31,11 +31,11 @@ services:
     env_file:
       - .env
       - config/api-docker.env
-    volumes:
-      - type: bind
-        source: ./config/ca.secp384r1.crt
-        target: /etc/ssl/certs/ca.secp384r1.crt
-        read_only: true
+    # volumes:
+    #   - type: bind
+    #     source: ./config/ca.secp384r1.crt
+    #     target: /etc/ssl/certs/ca.secp384r1.crt
+    #     read_only: true
     secrets:
       - source: jws-key
         target: jws.secp521r1.key
@@ -60,11 +60,11 @@ services:
     env_file:
       - .env
       - config/api-docker.env
-    volumes:
-      - type: bind
-        source: ./config/ca.secp384r1.crt
-        target: /etc/ssl/certs/ca.secp384r1.crt
-        read_only: true
+    # volumes:
+    #   - type: bind
+    #     source: ./config/ca.secp384r1.crt
+    #     target: /etc/ssl/certs/ca.secp384r1.crt
+    #     read_only: true
     secrets:
       - source: jws-key
         target: jws.secp521r1.key

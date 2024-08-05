@@ -3,5 +3,5 @@
   "compilerOptions": {
     "outDir": "../dist"
   },
-  "exclude": ["**/*spec.ts", "cli.ts", "index.ts"]
+  "exclude": ["**/*spec.ts", "cli/**", "index.ts"]
 }

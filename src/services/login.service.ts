@@ -36,7 +36,7 @@ export class LoginService {
 
     if (user.isLocked) {
       if (user.isLockedUntil && Date.now() > user.isLockedUntil.getTime()) {
-        this.userService.unlockUser(user.id);
+        await this.userService.unlockUser(user.id);
       } else {
         this.logger.verbose(`Login attempt from locked account: userId=${user.id}`);
         const error: ValidationErrorDto = {
@@ -67,7 +67,7 @@ export class LoginService {
   }
 
   private handleFailedAttempt(user: UserDbModel, error = GENERIC_ERROR): never {
-    this.userService.setAccessFailedCount(
+    void this.userService.setAccessFailedCount(
       user.id,
       user.accessFailedCount ? user.accessFailedCount + 1 : 1
     );

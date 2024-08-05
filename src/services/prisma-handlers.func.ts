@@ -10,22 +10,16 @@ const PrismaErrorCode = {
   NOT_FOUND: "P2025",
 };
 
-export type DbErrorHandler = (error: Prisma.PrismaClientKnownRequestError) => void;
+export type DbErrorHandler = (error: Prisma.PrismaClientKnownRequestError) => unknown;
 
 export function handleNotFound(error: Prisma.PrismaClientKnownRequestError) {
-  if (
-    error instanceof Prisma.PrismaClientKnownRequestError &&
-    error.code === PrismaErrorCode.NOT_FOUND
-  ) {
+  if (error.code === PrismaErrorCode.NOT_FOUND) {
     throw new NotFoundException();
   }
 }
 
 export function handleDuplicateRecord(error: Prisma.PrismaClientKnownRequestError) {
-  if (
-    error instanceof Prisma.PrismaClientKnownRequestError &&
-    error.code === PrismaErrorCode.UNIQUE_CONSTRAINT
-  ) {
+  if (error.code === PrismaErrorCode.UNIQUE_CONSTRAINT) {
     const message = `Can't create duplicate record${error.meta?.model ? ` ${error.meta.model as string}` : ""}`;
     const errorResult: ValidationErrorDto = {
       formErrors: [message],
@@ -42,7 +36,10 @@ export async function resolveOrHandleDbError<T>(
   try {
     return await resultPromise;
   } catch (error) {
-    errorHandlers.forEach(handler => handler(error));
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      errorHandlers.forEach(handler => handler(error));
+    }
+
     throw error;
   }
 }

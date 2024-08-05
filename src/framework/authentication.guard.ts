@@ -46,10 +46,12 @@ export class AuthenticationGuard implements CanActivate {
 
     this.logger.debug(`Verified user token: IP=${request.ip}, sub=${payload.sub}`);
 
-    request.res!.locals["user"] = payload;
     const requestContextId = ContextIdFactory.getByRequest(request);
     const userContextService = await this.moduleRef.resolve(UserContextService, requestContextId);
     userContextService.user = payload;
+    if (request.res) {
+      request.res.locals["user"] = payload;
+    }
 
     return true;
   }

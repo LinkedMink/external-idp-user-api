@@ -48,5 +48,5 @@ function isUserDbModel(
 }
 
 function isUserClaimsDbModel(input: UserDbModel | UserClaimsDbModel): input is UserClaimsDbModel {
-  return (input as UserClaimsDbModel).claims !== undefined;
+  return !!(input as UserClaimsDbModel).claims;
 }

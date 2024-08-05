@@ -11,7 +11,7 @@
       "type": "node-terminal"
     },
     {
-      "command": "npx ts-node src/cli ${input:cliCommandArgs}",
+      "command": "npx ts-node src/cli/index.ts ${input:cliCommandArgs}",
       "name": "Run CLI",
       "request": "launch",
       "type": "node-terminal"
