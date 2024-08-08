@@ -7,7 +7,7 @@ services:
       - config/postgres.env
     volumes:
       - type: volume
-        source: pgdata
+        source: postgres-data
         target: /var/lib/postgresql/data
       - type: bind
         source: ./config/init-db.sh
@@ -18,12 +18,18 @@ services:
     image: redis:7-alpine
     ports:
       - "127.0.0.1:6379:6379/tcp"
+    volumes:
+      - type: volume
+        source: redis-data
+        target: /data
 
-  api:
-    image: external-idp-user-api
+  eiu-api:
+    image: linkedmink/external-idp-user-api
     build:
       context: .
       target: application
+    profiles:
+      - deploy
     command: node --enable-source-maps --${INSPECT_TYPE:-inspect}=0.0.0.0:9229 dist/main.js
     ports:
       - "127.0.0.1:3000:3000/tcp"
@@ -49,11 +55,13 @@ services:
         - action: rebuild
           path: package-lock.json
 
-  api-watch:
-    image: external-idp-user-api:dev
+  eiu-api-watch:
+    image: linkedmink/external-idp-user-api:dev
     build:
       context: .
       target: watch
+    profiles:
+      - dev
     ports:
       - "127.0.0.1:3000:3000/tcp"
       - "127.0.0.1:9229:9229/tcp"
@@ -80,7 +88,8 @@ services:
           path: package-lock.json
 
 volumes:
-  pgdata:
+  postgres-data:
+  redis-data:
 
 secrets:
   jws-key:
