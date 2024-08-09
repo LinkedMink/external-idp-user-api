@@ -1,8 +1,8 @@
 import { INestApplicationContext } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { Command } from "commander";
-import { Claims, ClaimsAccessLevel } from "../config/user.const";
-import { UserService } from "../services/user.service";
+import { Claims, ClaimsAccessLevel } from "../src/config/user.const";
+import { UserService } from "../src/services/user.service";
 import { CliModule } from "./cli.module";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -8,6 +8,6 @@ async function bootstrap() {
     // TODO
     logger: ["log", "error", "warn", "debug", "verbose", "fatal"],
   });
-  await app.listen(3000);
+  await app.listen(process.env.LISTEN_PORT ?? 58080);
 }
 void bootstrap();

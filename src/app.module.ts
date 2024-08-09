@@ -27,6 +27,7 @@ import { UserService } from "./services/user.service";
     }),
     ConfigModule.forRoot({
       isGlobal: true,
+      ignoreEnvFile: true,
       load: [cacheConfigLoad, loggingConfigLoad, passwordConfigLoad, signingConfigLoad],
     }),
   ],
