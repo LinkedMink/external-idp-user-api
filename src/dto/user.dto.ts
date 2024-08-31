@@ -1,21 +1,24 @@
-import { z } from "zod";
-import { UserClaimsDbModel } from "../interfaces/db.types";
+export type UserCreateDto = {
+  username: string;
+  password: string;
+  isLocked?: boolean;
+  claims?: Record<string, string>;
+};
 
-export const userCreateDtoSchema = z.object({
-  username: z.string().min(4),
-  // TODO options for complexity
-  password: z.string().min(8),
-  isLocked: z.boolean().default(false),
-  // TODO support complex claims
-  claims: z.record(z.string().min(1), z.string().min(1)).default({}),
-});
+export type UserUpdateDto = Partial<UserCreateDto>;
 
-export const userUpdateDtoSchema = userCreateDtoSchema.partial();
+export type UserResponseDto = {
+  id: number;
+  createdAt: Date;
+  createdBy: string;
+  updatedAt: Date;
+  updatedBy: string;
+  username: string;
+  accessFailedCount: number | null;
+  isLocked: boolean;
+  isLockedUntil: Date | null;
+};
 
-export type UserCreateDto = z.infer<typeof userCreateDtoSchema>;
-export type UserUpdateDto = z.infer<typeof userUpdateDtoSchema>;
-
-export type UserResponseDto = Omit<UserClaimsDbModel, "claims" | "passwordHash" | "passwordSalt">;
 export type UserClaimsResponseDto = UserResponseDto & {
   claims: Record<string, string>;
 };

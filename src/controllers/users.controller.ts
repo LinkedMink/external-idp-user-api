@@ -11,18 +11,18 @@ import {
   Post,
   UseInterceptors,
 } from "@nestjs/common";
-import { Claims, ClaimsAccessLevel } from "../config/user.const";
+import { Claims, ClaimsAccessLevel } from "../config/user.const.js";
+import { RequiredClaims } from "../framework/authentication.decorator.js";
+import { UsersTransformInterceptor } from "../framework/users-transform.interceptor.js";
+import { ZodValidationPipe } from "../framework/zod-validation.pipe.js";
 import {
-  UserCreateDto,
   userCreateDtoSchema,
-  UserUpdateDto,
+  UserCreateTransformedDto,
   userUpdateDtoSchema,
-} from "../dto/user.dto";
-import { RequiredClaims } from "../framework/authentication.decorator";
-import { UsersTransformInterceptor } from "../framework/users-transform.interceptor";
-import { ZodValidationPipe } from "../framework/zod-validation.pipe";
-import { UserContextService } from "../services/user-context.service";
-import { UserService } from "../services/user.service";
+  UserUpdateTransformedDto,
+} from "../schemas/user.schema.js";
+import { UserContextService } from "../services/user-context.service.js";
+import { UserService } from "../services/user.service.js";
 
 @Controller("users")
 @RequiredClaims([Claims.USERS, ClaimsAccessLevel.ADMIN])
@@ -39,14 +39,14 @@ export class UsersController {
   }
 
   @Post()
-  post(@Body(new ZodValidationPipe(userCreateDtoSchema)) dto: UserCreateDto) {
+  post(@Body(new ZodValidationPipe(userCreateDtoSchema)) dto: UserCreateTransformedDto) {
     return this.userService.create(dto, this.userContextService.user.sub);
   }
 
   @Patch(":id")
   patch(
     @Param("id", ParseIntPipe) id: number,
-    @Body(new ZodValidationPipe(userUpdateDtoSchema)) dto: UserUpdateDto
+    @Body(new ZodValidationPipe(userUpdateDtoSchema)) dto: UserUpdateTransformedDto
   ) {
     return this.userService.updateById(id, dto, this.userContextService.user.sub);
   }

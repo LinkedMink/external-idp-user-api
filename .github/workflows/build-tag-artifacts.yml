@@ -1,0 +1,27 @@
+---
+name: Build Tag with Artifacts
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      upload-to-tag:
+        type: string
+        required: true
+        description: "Associate built Bundle with Github tag"
+
+jobs:
+  build:
+    uses: LinkedMink/.github/.github/workflows/build-npm-package.yml@main
+    with:
+      upload-build: true
+      # node-js-version: "22"
+  upload:
+    needs: build
+    uses: LinkedMink/.github/.github/workflows/publish-artifacts-for-tag.yml@main
+    with:
+      upload-to-tag: ${{ github.event.inputs.upload-to-tag || github.ref_name }}
+      uploaded-build-name: ${{ needs.build.outputs.uploaded-build-name }}

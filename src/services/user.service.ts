@@ -1,16 +1,19 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { DEFAULT_MODIFIED_BY, LoginMethod } from "../config/user.const";
-import { UserCreateDto, UserUpdateDto } from "../dto/user.dto";
-import { IdDbModel, UserClaimsDbModel } from "../interfaces/db.types";
-import { PasswordService } from "./password.service";
+import { Claims, DEFAULT_MODIFIED_BY, LoginMethod } from "../config/user.const.js";
+import { IdDbModel, UserClaimsDbModel } from "../interfaces/db.types.js";
+import { UserCreateTransformedDto, UserUpdateTransformedDto } from "../schemas/user.schema.js";
+import { PasswordService } from "./password.service.js";
 import {
   handleDuplicateRecord,
   handleNotFound,
   resolveOrHandleDbError,
-} from "./prisma-handlers.func";
-import { PrismaService } from "./prisma.service";
+} from "./prisma-handlers.func.js";
+import { PrismaService } from "./prisma.service.js";
 
+/**
+ * TODO Use cache manager as intermediary to DB
+ */
 @Injectable()
 export class UserService {
   // TODO add options
@@ -34,7 +37,10 @@ export class UserService {
     return this.prismaService.user.findUnique({ where: { username }, include: { claims: true } });
   }
 
-  async create(dto: UserCreateDto, modifiedBy = DEFAULT_MODIFIED_BY): Promise<UserClaimsDbModel> {
+  async create(
+    dto: UserCreateTransformedDto,
+    modifiedBy = DEFAULT_MODIFIED_BY
+  ): Promise<UserClaimsDbModel> {
     const password = await this.passwordService.createHash(dto.password);
     const resultPromise = this.prismaService.user.create({
       include: { claims: true },
@@ -53,9 +59,33 @@ export class UserService {
     return resolveOrHandleDbError(resultPromise, handleDuplicateRecord);
   }
 
+  async createByProvider(
+    username: string,
+    loginMethod: LoginMethod,
+    claims: Record<string, string> = {}
+  ): Promise<UserClaimsDbModel> {
+    const modifiedBy = `${loginMethod}(${username})`;
+    const resultPromise = this.prismaService.user.create({
+      include: { claims: true },
+      data: {
+        createdBy: modifiedBy,
+        updatedBy: modifiedBy,
+        username: username,
+        isLocked: false,
+        claims: {
+          create: [
+            ...Object.entries(claims).map(([key, value]) => ({ key, value })),
+            { key: Claims.LOGIN_METHOD, value: loginMethod },
+          ],
+        },
+      },
+    });
+    return resolveOrHandleDbError(resultPromise, handleDuplicateRecord);
+  }
+
   async updateById(
     id: number,
-    dto: UserUpdateDto,
+    dto: UserUpdateTransformedDto,
     modifiedBy = DEFAULT_MODIFIED_BY
   ): Promise<UserClaimsDbModel> {
     const password = dto.password ? await this.passwordService.createHash(dto.password) : undefined;

@@ -1,9 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { UserClaimsDbModel } from "../interfaces/db.types";
-import { UserContextService } from "../services/user-context.service";
-import { UserService } from "../services/user.service";
-import { UsersController } from "./users.controller";
+import { UserClaimsDbModel } from "../../src/interfaces/db.types.js";
+import { UserContextService } from "../../src/services/user-context.service.js";
+import { UserService } from "../../src/services/user.service.js";
+import { UsersController } from "../../src/controllers/users.controller.js";
 
 const getStubUser = (): UserClaimsDbModel => ({
   id: 1,
@@ -41,22 +41,22 @@ describe(UsersController.name, () => {
 
   it("should return UserService.findById() result called with ID when get() called", async () => {
     const stubUser = getStubUser();
-    const mockUserService = testingModule.get(UserService) as MockProxy<UserService>;
+    const mockUserService: MockProxy<UserService> = testingModule.get(UserService);
     mockUserService.findById.mockResolvedValue(stubUser);
 
     const result = await testingModule.get(UsersController).get(1);
 
     expect(result).toEqual(stubUser);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(mockUserService.findById).toHaveBeenCalledWith(1);
   });
 
   it("should return UserService.create() result called with body and user ID when post() called", async () => {
     const stubUser = getStubUser();
-    const mockUserService = testingModule.get(UserService) as MockProxy<UserService>;
+    const mockUserService: MockProxy<UserService> = testingModule.get(UserService);
     mockUserService.create.mockResolvedValue(stubUser);
-    const mockUserContextService = testingModule.get(
-      UserContextService
-    ) as MockProxy<UserContextService>;
+    const mockUserContextService: MockProxy<UserContextService> =
+      testingModule.get(UserContextService);
     mockUserContextService.user = { sub: "testUserSub" };
 
     const postBody = {
@@ -68,16 +68,16 @@ describe(UsersController.name, () => {
     const result = await testingModule.get(UsersController).post(postBody);
 
     expect(result).toEqual(stubUser);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(mockUserService.create).toHaveBeenCalledWith(postBody, "testUserSub");
   });
 
   it("should return UserService.create() result called with ID, body, and user ID when patch() called", async () => {
     const stubUser = getStubUser();
-    const mockUserService = testingModule.get(UserService) as MockProxy<UserService>;
+    const mockUserService: MockProxy<UserService> = testingModule.get(UserService);
     mockUserService.updateById.mockResolvedValue(stubUser);
-    const mockUserContextService = testingModule.get(
-      UserContextService
-    ) as MockProxy<UserContextService>;
+    const mockUserContextService: MockProxy<UserContextService> =
+      testingModule.get(UserContextService);
     mockUserContextService.user = { sub: "testUserSub" };
 
     const postBody = {
@@ -86,16 +86,18 @@ describe(UsersController.name, () => {
     const result = await testingModule.get(UsersController).patch(1, postBody);
 
     expect(result).toEqual(stubUser);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(mockUserService.updateById).toHaveBeenCalledWith(1, postBody, "testUserSub");
   });
 
   it("should return UserService.deleteById() result called with ID when delete() called", async () => {
-    const mockUserService = testingModule.get(UserService) as MockProxy<UserService>;
+    const mockUserService: MockProxy<UserService> = testingModule.get(UserService);
     mockUserService.deleteById.mockResolvedValue({ id: 1 });
 
     const result = await testingModule.get(UsersController).delete(1);
 
     expect(result).toEqual({ id: 1 });
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(mockUserService.deleteById).toHaveBeenCalledWith(1);
   });
 });

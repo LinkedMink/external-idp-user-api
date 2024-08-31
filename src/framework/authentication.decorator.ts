@@ -1,5 +1,5 @@
 import { SetMetadata } from "@nestjs/common";
-import { Claim } from "../config/user.const";
+import { Claim } from "../config/user.const.js";
 
 export const IS_ANONYMOUS_ALLOWED_KEY = "isAnonymousAllowed";
 export const AllowAnonymous = () => SetMetadata(IS_ANONYMOUS_ALLOWED_KEY, true);

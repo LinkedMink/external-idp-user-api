@@ -1,4 +1,4 @@
-export interface HealthResponseDto {
+export type HealthResponseDto = {
   timestamp: Date;
   isHealthy: boolean;
-}
+};

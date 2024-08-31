@@ -1,11 +1,11 @@
-import { BadRequestException, Injectable, Logger } from "@nestjs/common";
-import { PasswordService } from "./password.service";
-import { TokenSigningService } from "./token-signing.service";
-import { UserService } from "./user.service";
-import { PasswordLoginDto } from "../dto/login.dto";
-import { ValidationErrorDto } from "../dto/errors.dto";
-import { LoginMethods } from "../config/user.const";
-import { UserDbModel } from "../interfaces/db.types";
+import { BadRequestException, ConsoleLogger, Injectable } from "@nestjs/common";
+import { LoginMethods } from "../../config/user.const.js";
+import { ValidationErrorDto } from "../../dto/errors.dto.js";
+import { PasswordLoginDto } from "../../dto/login.dto.js";
+import { UserDbModel } from "../../interfaces/db.types.js";
+import { PasswordService } from "../password.service.js";
+import { TokenSigningService } from "../token-signing.service.js";
+import { UserService } from "../user.service.js";
 
 const GENERIC_ERROR: ValidationErrorDto = {
   formErrors: ["Entered credentials are incorrect"],
@@ -13,14 +13,15 @@ const GENERIC_ERROR: ValidationErrorDto = {
 };
 
 @Injectable()
-export class LoginService {
-  private readonly logger = new Logger(LoginService.name);
-
+export class PasswordLoginService {
   constructor(
+    private readonly logger: ConsoleLogger,
     private readonly tokenSigningService: TokenSigningService,
     private readonly passwordService: PasswordService,
     private readonly userService: UserService
-  ) {}
+  ) {
+    logger.setContext(PasswordLoginService.name);
+  }
 
   async login(dto: PasswordLoginDto) {
     const user = await this.userService.findByUsername(dto.username);

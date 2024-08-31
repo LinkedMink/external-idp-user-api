@@ -1,18 +1,25 @@
-import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { errors, jwtVerify, KeyLike, SignJWT } from "jose";
-import { createPrivateKey } from "node:crypto";
+import { ConsoleLogger, Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { errors, jwtVerify, SignJWT } from "jose";
+import { createPrivateKey, createPublicKey, JsonWebKey, KeyObject } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { signingConfigLoad, SigningConfigType } from "../config/signing.config";
+import { signingConfigLoad, SigningConfigType } from "../config/signing.config.js";
 
 @Injectable()
 export class TokenSigningService implements OnModuleInit {
-  private readonly logger = new Logger(TokenSigningService.name);
-  private signingKey: KeyLike;
+  private signingKey!: KeyObject;
+  private publicKeyVal!: JsonWebKey;
+
+  get publicKey() {
+    return this.publicKeyVal;
+  }
 
   constructor(
+    private readonly logger: ConsoleLogger,
     @Inject(signingConfigLoad.KEY)
     private readonly signingConfig: SigningConfigType
-  ) {}
+  ) {
+    logger.setContext(TokenSigningService.name);
+  }
 
   async onModuleInit() {
     this.logger.log(
@@ -21,6 +28,7 @@ export class TokenSigningService implements OnModuleInit {
 
     const keyData = await readFile(this.signingConfig.signingKeyFilePath);
     this.signingKey = createPrivateKey(keyData);
+    this.publicKeyVal = createPublicKey(this.signingKey).export({ format: "jwk" });
   }
 
   async sign(subject?: string, claims?: Record<string, unknown>) {

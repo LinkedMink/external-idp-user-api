@@ -1,10 +1,6 @@
 ---
 name: Build main Branch
 
-concurrency:
-  group: build-${{ github.ref }}
-  cancel-in-progress: true
-
 # yamllint disable-line rule:truthy
 on:
   push:
@@ -15,4 +11,5 @@ jobs:
   build:
     uses: LinkedMink/.github/.github/workflows/build-npm-package.yml@main
     with:
-      uploadBuild: false
+      upload-build: false
+      # node-js-version: "22"

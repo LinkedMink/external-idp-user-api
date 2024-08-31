@@ -1,0 +1,35 @@
+{
+  "name": "@linkedmink/external-idp-user-api-types",
+  "version": "1.0.0-2",
+  "description": "Verify external ID tokens and allow internal APIs to verify access without knowledge of the identity provider",
+  "homepage": "https://github.com/LinkedMink/external-idp-user-api#readme",
+  "bugs": {
+    "url": "https://github.com/LinkedMink/external-idp-user-api/issues",
+    "email": "harlan.sang@linkedmink.net"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Harlan Sang",
+    "email": "harlan.sang@linkedmink.net",
+    "url": "https://github.com/LinkedMink"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/LinkedMink"
+  },
+  "type": "module",
+  "main": "./dist/types/index.d.ts",
+  "types": "./dist/types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LinkedMink/external-idp-user-api.git",
+    "directory": "types"
+  },
+  "scripts": {
+    "clean": "node -e \"fs.rm('dist', { force: true, recursive: true }, () => {})\"",
+    "preversion": "tsc",
+    "version": "git add .",
+    "postversion": "npm publish",
+    "prepack": "npm run clean && tsc"
+  }
+}

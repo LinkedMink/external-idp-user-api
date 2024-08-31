@@ -7,26 +7,45 @@ services:
       - config/postgres.env
     volumes:
       - type: volume
-        source: pgdata
+        source: postgres-data
         target: /var/lib/postgresql/data
       - type: bind
         source: ./config/init-db.sh
         target: /docker-entrypoint-initdb.d/init-db.sh
         read_only: true
 
-  redis:
-    image: redis:7-alpine
+  valkey:
+    image: valkey/valkey:7-alpine
     ports:
-      - "127.0.0.1:6379:6379/tcp"
+      - "127.0.0.1:56379:6379/tcp"
+    volumes:
+      - type: volume
+        source: valkey-data
+        target: /data
+    healthcheck:
+      test: ["CMD", "netstat -an | grep 6379 > /dev/null; if [ 0 != $? ]; then exit 1; fi;"]
 
-  api:
-    image: external-idp-user-api
+  eiu-api:
+    image: ${DOCKER_REGISTRY-}linkedmink/external-idp-user-api
     build:
       context: .
       target: application
-    command: node --enable-source-maps --${INSPECT_TYPE:-inspect}=0.0.0.0:9229 dist/main.js
+      # platforms:
+      #   - "linux/amd64"
+      #   - "linux/arm64"
+      # cache_from:
+      #   - type=registry,ref=${DO}${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:build-cache
+      # cache_to:
+      #   - type=registry,ref=${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:build-cache,mode=max
+      tags:
+        - "${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:${PACKAGE_VERSION:-latest}"
+      additional_contexts:
+        - homedir=${HOME:-.}
+    profiles:
+      - deploy
+    command: node --enable-source-maps --${INSPECT_TYPE:-inspect}=0.0.0.0:9229 main.js
     ports:
-      - "127.0.0.1:3000:3000/tcp"
+      - "127.0.0.1:58080:58080/tcp"
       - "127.0.0.1:9229:9229/tcp"
     env_file:
       - .env
@@ -41,7 +60,7 @@ services:
         target: jws.secp521r1.key
     depends_on:
       - postgres
-      - redis
+      - valkey
     develop:
       watch:
         - action: rebuild
@@ -49,13 +68,21 @@ services:
         - action: rebuild
           path: package-lock.json
 
-  api-watch:
-    image: external-idp-user-api:dev
+  eiu-api-dev:
+    image: ${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:dev
     build:
       context: .
-      target: watch
+      target: dev
+      # cache_from:
+      #   - type=registry,ref=${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:build-cache
+      # cache_to:
+      #   - type=registry,ref=${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:build-cache,mode=max
+      additional_contexts:
+        - homedir=${HOME:-.}
+    profiles:
+      - dev
     ports:
-      - "127.0.0.1:3000:3000/tcp"
+      - "127.0.0.1:58080:58080/tcp"
       - "127.0.0.1:9229:9229/tcp"
     env_file:
       - .env
@@ -70,7 +97,7 @@ services:
         target: jws.secp521r1.key
     depends_on:
       - postgres
-      - redis
+      - valkey
     develop:
       watch:
         - action: sync
@@ -80,7 +107,8 @@ services:
           path: package-lock.json
 
 volumes:
-  pgdata:
+  postgres-data:
+  valkey-data:
 
 secrets:
   jws-key:

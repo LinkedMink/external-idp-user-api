@@ -3,7 +3,7 @@ import { ConfigType, registerAs } from "@nestjs/config";
 import type { Prisma } from "@prisma/client";
 import { config } from "winston";
 import { z } from "zod";
-import { stringToJsonSchema } from "../utility/zod-schema";
+import { stringToJsonSchema } from "../schemas/json.schema.js";
 
 export const LogLevels = {
   error: config.npm.levels.error,
@@ -12,7 +12,7 @@ export const LogLevels = {
   debug: config.npm.levels.debug,
 } as const;
 
-type LogLevel = keyof typeof LogLevels;
+export type LogLevel = keyof typeof LogLevels;
 
 const OrderedLogLevelsMap = new Map<LogLevel, [NestLogLevel[], Prisma.LogLevel]>([
   ["error", [["fatal", "error"], "error"]],
@@ -25,9 +25,9 @@ const loggingConfigSchema = stringToJsonSchema.optional().pipe(
   z
     .object({
       level: z.enum(Object.keys(LogLevels) as ["error", "warn", "info", "debug"]).default("info"),
+      defaultContext: z.string().min(1).default("App"),
       isStackTraceLogged: z.boolean().default(process.env.NODE_ENV !== "production"),
     })
-    .optional()
     .transform(config => ({
       ...config,
       orderedLogLevelsMap: OrderedLogLevelsMap,

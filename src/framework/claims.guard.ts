@@ -1,13 +1,16 @@
-import { CanActivate, ExecutionContext, Injectable, Logger } from "@nestjs/common";
+import { CanActivate, ConsoleLogger, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { ResponseWithJwt } from "../interfaces/request.types";
-import { CLAIMS_KEY, RequiredClaimsEntries } from "./authentication.decorator";
+import { ResponseWithJwt } from "../interfaces/request.types.js";
+import { CLAIMS_KEY, RequiredClaimsEntries } from "./authentication.decorator.js";
 
 @Injectable()
 export class ClaimsGuard implements CanActivate {
-  private readonly logger = new Logger(ClaimsGuard.name);
-
-  constructor(private readonly reflector: Reflector) {}
+  constructor(
+    private readonly logger: ConsoleLogger,
+    private readonly reflector: Reflector
+  ) {
+    logger.setContext(ClaimsGuard.name);
+  }
 
   canActivate(context: ExecutionContext): boolean {
     const requiredClaims = this.reflector.getAllAndOverride<RequiredClaimsEntries | undefined>(

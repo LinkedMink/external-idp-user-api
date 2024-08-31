@@ -1,6 +1,6 @@
 import { ConfigType, registerAs } from "@nestjs/config";
 import { z } from "zod";
-import { stringToJsonSchema } from "../utility/zod-schema";
+import { stringToJsonSchema } from "../schemas/json.schema.js";
 
 const passwordConfigSchema = stringToJsonSchema.pipe(
   z.object({

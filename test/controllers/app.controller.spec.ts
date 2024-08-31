@@ -1,13 +1,21 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { AppController } from "./app.controller";
+import { mock } from "jest-mock-extended";
+import { TokenSigningService } from "../../src/services/token-signing.service.js";
+import { AppController } from "../../src/controllers/app.controller.js";
 
 describe(AppController.name, () => {
   let testingModule: TestingModule;
+  const stubPublicKey = {};
 
   beforeEach(async () => {
     testingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [],
+      providers: [
+        {
+          provide: TokenSigningService,
+          useFactory: () => mock<TokenSigningService>({ publicKey: stubPublicKey }),
+        },
+      ],
     }).compile();
   });
 
@@ -22,6 +30,15 @@ describe(AppController.name, () => {
     expect(result).toEqual({
       timestamp: stubbedDateTime,
       isHealthy: true,
+    });
+  });
+
+  it("should return public key when getKeys() called", () => {
+    const appController = testingModule.get(AppController);
+    const result = appController.getKeys();
+
+    expect(result).toEqual({
+      keys: [stubPublicKey],
     });
   });
 });

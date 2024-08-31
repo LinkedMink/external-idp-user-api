@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "paths": {
+      "@linkedmink/eip-4361-parser/zod": [
+        "../node_modules/@linkedmink/eip-4361-parser/dist/cjs/zod/index"
+      ]
+    }
+  }
+}

@@ -1,11 +1,11 @@
 import type { HttpStatus } from "@nestjs/common";
 
-export interface StatusCodeErrorDto {
+export type StatusCodeErrorDto = {
   message: string;
   statusCode: HttpStatus;
-}
+};
 
-export interface ValidationErrorDto {
+export type ValidationErrorDto = {
   formErrors: string[];
   fieldErrors: Record<string, string[]>;
-}
+};

@@ -1,9 +1,9 @@
 import { INestApplicationContext } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { Command } from "commander";
-import { Claims, ClaimsAccessLevel } from "../config/user.const";
-import { UserService } from "../services/user.service";
-import { CliModule } from "./cli.module";
+import { Claims, ClaimsAccessLevel } from "../src/config/user.const.js";
+import { UserService } from "../src/services/user.service.js";
+import { CliModule } from "./cli.module.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AppAction = (app: INestApplicationContext, ...args: any[]) => Promise<void>;
@@ -16,7 +16,7 @@ const appAction =
     await app.close();
   };
 
-export const addUserCommand = new Command("add")
+const addUserCommand = new Command("add")
   .description("Add an admin user that can create/update other users")
   .argument("<username>", "The name to find this user by")
   .argument("<password>", "The password to authenticate")
@@ -34,7 +34,7 @@ export const addUserCommand = new Command("add")
     })
   );
 
-export const deleteUserCommand = new Command("delete")
+const deleteUserCommand = new Command("delete")
   .description("Delete a user")
   .argument("<username>", "The name to find this user by")
   .action(
@@ -48,3 +48,8 @@ export const deleteUserCommand = new Command("delete")
       await userService.deleteById(user.id);
     })
   );
+
+export const userCommands = new Command("user")
+  .description("Commands to manipulate user records")
+  .addCommand(addUserCommand)
+  .addCommand(deleteUserCommand);

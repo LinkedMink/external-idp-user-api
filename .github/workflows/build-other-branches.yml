@@ -1,9 +1,5 @@
 ---
-name: Build Pull Requests and Dispatch
-
-concurrency:
-  group: build-${{ github.ref }}
-  cancel-in-progress: true
+name: Build Other Branches
 
 # yamllint disable-line rule:truthy
 on:
@@ -17,4 +13,5 @@ jobs:
   build:
     uses: LinkedMink/.github/.github/workflows/build-npm-package.yml@main
     with:
-      uploadBuild: false
+      upload-build: false
+      # node-js-version: "22"

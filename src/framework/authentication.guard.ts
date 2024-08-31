@@ -1,25 +1,26 @@
 import {
   CanActivate,
+  ConsoleLogger,
   ExecutionContext,
   Injectable,
-  Logger,
   UnauthorizedException,
 } from "@nestjs/common";
 import { ContextIdFactory, ModuleRef, Reflector } from "@nestjs/core";
-import { TokenSigningService } from "../services/token-signing.service";
-import { IS_ANONYMOUS_ALLOWED_KEY } from "./authentication.decorator";
-import { RequestWithJwt } from "../interfaces/request.types";
-import { UserContextService } from "../services/user-context.service";
+import { RequestWithJwt } from "../interfaces/request.types.js";
+import { TokenSigningService } from "../services/token-signing.service.js";
+import { UserContextService } from "../services/user-context.service.js";
+import { IS_ANONYMOUS_ALLOWED_KEY } from "./authentication.decorator.js";
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
-  private readonly logger = new Logger(AuthenticationGuard.name);
-
   constructor(
+    private readonly logger: ConsoleLogger,
     private readonly reflector: Reflector,
     private readonly tokenSigningService: TokenSigningService,
     private readonly moduleRef: ModuleRef
-  ) {}
+  ) {
+    logger.setContext(AuthenticationGuard.name);
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isAnonymousAllowed = this.reflector.getAllAndOverride<boolean>(IS_ANONYMOUS_ALLOWED_KEY, [

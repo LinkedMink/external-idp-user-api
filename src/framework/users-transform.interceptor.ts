@@ -1,8 +1,8 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import { IdDbModel, UserClaimsDbModel, UserDbModel } from "../interfaces/db.types";
-import { UserClaimsResponseDto, UserResponseDto } from "../dto/user.dto";
+import { IdDbModel, UserClaimsDbModel, UserDbModel } from "../interfaces/db.types.js";
+import { UserClaimsResponseDto, UserResponseDto } from "../dto/user.dto.js";
 
 @Injectable()
 export class UsersTransformInterceptor

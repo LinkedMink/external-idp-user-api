@@ -1,12 +1,18 @@
-import { z } from "zod";
+export type PasswordLoginDto = {
+  username: string;
+  password: string;
+};
 
-export const passwordLoginDtoSchema = z.object({
-  username: z.string().min(1),
-  password: z.string().min(1),
-});
+export type EthereumLoginDto = {
+  message: string;
+  signature: string;
+};
 
-export type PasswordLoginDto = z.infer<typeof passwordLoginDtoSchema>;
+export type NonceResponseDto = {
+  nonce: string;
+  requestId: string;
+};
 
-export interface LoginResponseDto {
+export type LoginResponseDto = {
   token: string;
-}
+};

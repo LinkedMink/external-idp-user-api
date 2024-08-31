@@ -11,7 +11,7 @@
       "type": "node-terminal"
     },
     {
-      "command": "npx ts-node src/cli/index.ts ${input:cliCommandArgs}",
+      "command": "npx tsx cli/index.ts ${input:cliCommandArgs}",
       "name": "Run CLI",
       "request": "launch",
       "type": "node-terminal"
@@ -29,9 +29,9 @@
       "type": "node",
       "address": "localhost",
       "port": 9229,
-      "localRoot": "${workspaceFolder}/dist",
-      "remoteRoot": "/home/node/app/dist",
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+      "localRoot": "${workspaceFolder}/dist/server",
+      "remoteRoot": "/home/node/app/dist/server",
+      "outFiles": ["${workspaceFolder}/dist/server/**/*.js"]
     },
     {
       "name": "Launch Container Dev",
@@ -41,9 +41,9 @@
       "address": "localhost",
       "port": 9229,
       "restart": true,
-      "localRoot": "${workspaceFolder}/dist",
-      "remoteRoot": "/home/node/app/dist",
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "localRoot": "${workspaceFolder}/dist/server",
+      "remoteRoot": "/home/node/app/dist/server",
+      "outFiles": ["${workspaceFolder}/dist/server/**/*.js"],
       "preLaunchTask": "Docker Watch Dev"
     },
     {
@@ -54,9 +54,9 @@
       "address": "localhost",
       "port": 9229,
       "restart": true,
-      "localRoot": "${workspaceFolder}/dist",
-      "remoteRoot": "/home/node/app/dist",
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "localRoot": "${workspaceFolder}/dist/server",
+      "remoteRoot": "/home/node/app",
+      "outFiles": ["${workspaceFolder}/dist/server/**/*.js"],
       "preLaunchTask": "Docker Watch Deployed"
     }
   ],

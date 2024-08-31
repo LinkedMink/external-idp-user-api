@@ -1,6 +1,6 @@
 import { ConflictException, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { ValidationErrorDto } from "../dto/errors.dto";
+import { ValidationErrorDto } from "../dto/errors.dto.js";
 
 /**
  * @see https://www.prisma.io/docs/orm/reference/error-reference#error-codes

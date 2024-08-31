@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { BinaryLike, randomBytes, scrypt } from "node:crypto";
 import { promisify } from "node:util";
-import { passwordConfigLoad, PasswordConfigType } from "../config/password.config";
+import { passwordConfigLoad, PasswordConfigType } from "../config/password.config.js";
 
 const scryptAsync = promisify<BinaryLike, BinaryLike, number, Buffer>(scrypt);
 
