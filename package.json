@@ -33,6 +33,7 @@
     "start": "dotenvx run -- nest start --watch --preserveWatchOutput",
     "start:debug": "nest start --debug 0.0.0.0:9229 --watch --preserveWatchOutput",
     "start:prod": "dotenvx run -- node dist/server/main",
+    "prebuild": "prisma generate",
     "build": "nest build",
     "build:docker": "dotenvx run -- docker compose build --pull -- eiu-api",
     "clean": "node -e \"fs.rm('dist', { force: true, recursive: true }, () => {}); fs.rm('coverage', { force: true, recursive: true }, () => {})\"",
