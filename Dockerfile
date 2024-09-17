@@ -17,6 +17,8 @@ COPY --chown=node:node ./src/ ./src/
 ### Image for Dev Container
 FROM dependencies AS dev
 
+COPY --chown=node:node ./cli/ ./cli/
+
 EXPOSE 58080/tcp 9229/tcp
 HEALTHCHECK CMD netstat -an | grep 9229 > /dev/null; if [ 0 != $? ]; then exit 1; fi;
 

@@ -27,7 +27,7 @@ export class PrismaService
       ],
     });
 
-    logger.setContext(PrismaService.name);
+    this.logger.setContext(PrismaService.name);
 
     Array.from(loggingConfig.orderedLogLevelsMap).forEach(levelMapEntry => {
       const [nestLevels, prismaLevel] = levelMapEntry[1];

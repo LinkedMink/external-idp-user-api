@@ -37,8 +37,6 @@ services:
       #   - type=registry,ref=${DO}${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:build-cache
       # cache_to:
       #   - type=registry,ref=${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:build-cache,mode=max
-      tags:
-        - "${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:${PACKAGE_VERSION:-latest}"
       additional_contexts:
         - homedir=${HOME:-.}
     profiles:
@@ -67,6 +65,15 @@ services:
           path: src
         - action: rebuild
           path: package-lock.json
+
+  eiu-api-prod:
+    extends: eiu-api
+    build:
+      tags:
+        - "${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:${PACKAGE_VERSION:-latest}"
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
 
   eiu-api-dev:
     image: ${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:dev

@@ -1,8 +1,10 @@
 import { INestApplicationContext } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { Command } from "commander";
+import { loggingConfigLoad } from "../src/config/logging.config.js";
 import { Claims, ClaimsAccessLevel } from "../src/config/user.const.js";
 import { UserService } from "../src/services/user.service.js";
+import { WinstonLoggerService } from "../src/services/winston-logger.service.js";
 import { CliModule } from "./cli.module.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -11,7 +13,10 @@ type AppAction = (app: INestApplicationContext, ...args: any[]) => Promise<void>
 const appAction =
   (action: AppAction) =>
   async (...args: unknown[]) => {
-    const app = await NestFactory.createApplicationContext(CliModule);
+    const app = await NestFactory.createApplicationContext(CliModule, {
+      logger: new WinstonLoggerService(loggingConfigLoad()),
+    });
+
     await action(app, ...args);
     await app.close();
   };
