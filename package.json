@@ -1,6 +1,6 @@
 {
   "name": "@linkedmink/external-idp-user-api",
-  "version": "1.0.0-4",
+  "version": "1.0.0",
   "description": "Verify external ID tokens and allow internal APIs to verify access without knowledge of the identity provider",
   "homepage": "https://github.com/LinkedMink/external-idp-user-api#readme",
   "bugs": {
