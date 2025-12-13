@@ -7,6 +7,7 @@ import { signingConfigLoad, SigningConfigType } from "../config/signing.config.j
 @Injectable()
 export class TokenSigningService implements OnModuleInit {
   private signingKey!: KeyObject;
+  private verifyKey!: KeyObject;
   private publicKeyVal!: JsonWebKey;
 
   get publicKey() {
@@ -16,19 +17,20 @@ export class TokenSigningService implements OnModuleInit {
   constructor(
     private readonly logger: ConsoleLogger,
     @Inject(signingConfigLoad.KEY)
-    private readonly signingConfig: SigningConfigType
+    private readonly signingConfig: SigningConfigType,
   ) {
     logger.setContext(TokenSigningService.name);
   }
 
   async onModuleInit() {
     this.logger.log(
-      `Loading signing key: alg=${this.signingConfig.signingAlgorithm}, file=${this.signingConfig.signingKeyFilePath}`
+      `Loading signing key: alg=${this.signingConfig.signingAlgorithm}, file=${this.signingConfig.signingKeyFilePath}`,
     );
 
     const keyData = await readFile(this.signingConfig.signingKeyFilePath);
     this.signingKey = createPrivateKey(keyData);
-    this.publicKeyVal = createPublicKey(this.signingKey).export({ format: "jwk" });
+    this.verifyKey = createPublicKey(this.signingKey);
+    this.publicKeyVal = this.verifyKey.export({ format: "jwk" });
   }
 
   async sign(subject?: string, claims?: Record<string, unknown>) {
@@ -48,7 +50,7 @@ export class TokenSigningService implements OnModuleInit {
 
   async verify(token: string) {
     try {
-      const result = await jwtVerify(token, this.signingKey, {
+      const result = await jwtVerify(token, this.publicKey, {
         algorithms: [this.signingConfig.signingAlgorithm],
         issuer: this.signingConfig.issuer,
       });

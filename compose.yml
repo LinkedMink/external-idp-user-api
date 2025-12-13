@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     ports:
       - "127.0.0.1:5432:5432/tcp"
     env_file:
@@ -15,7 +15,7 @@ services:
         read_only: true
 
   valkey:
-    image: valkey/valkey:7-alpine
+    image: valkey/valkey:8-alpine
     ports:
       - "127.0.0.1:56379:6379/tcp"
     volumes:
@@ -23,20 +23,17 @@ services:
         source: valkey-data
         target: /data
     healthcheck:
-      test: ["CMD", "netstat -an | grep 6379 > /dev/null; if [ 0 != $? ]; then exit 1; fi;"]
+      test: ["CMD", "netstat -an | grep 6379"]
 
   eiu-api:
-    image: ${DOCKER_REGISTRY-}linkedmink/external-idp-user-api
+    image: ${DOCKER_REGISTRY:-docker.io}/linkedmink/external-idp-user-api
     build:
       context: .
       target: application
-      # platforms:
-      #   - "linux/amd64"
-      #   - "linux/arm64"
       # cache_from:
-      #   - type=registry,ref=${DO}${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:build-cache
+      #   - type=registry,ref=${DO}${DOCKER_REGISTRY:-docker.io}/linkedmink/external-idp-user-api:build-cache
       # cache_to:
-      #   - type=registry,ref=${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:build-cache,mode=max
+      #   - type=registry,ref=${DOCKER_REGISTRY:-docker.io}/linkedmink/external-idp-user-api:build-cache,mode=max
       additional_contexts:
         - homedir=${HOME:-.}
     profiles:
@@ -70,20 +67,23 @@ services:
     extends: eiu-api
     build:
       tags:
-        - "${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:${PACKAGE_VERSION:-latest}"
+        - "${DOCKER_REGISTRY:-docker.io}/linkedmink/external-idp-user-api:${PACKAGE_VERSION_EXTERNAL_IDP_USER_API:-latest}"
       platforms:
         - "linux/amd64"
         - "linux/arm64"
 
   eiu-api-dev:
-    image: ${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:dev
+    image: ${DOCKER_REGISTRY:-docker.io}/linkedmink/external-idp-user-api:dev
     build:
       context: .
       target: dev
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
       # cache_from:
-      #   - type=registry,ref=${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:build-cache
+      #   - type=registry,ref=${DOCKER_REGISTRY:-docker.io}/linkedmink/external-idp-user-api:build-cache
       # cache_to:
-      #   - type=registry,ref=${DOCKER_REGISTRY-}linkedmink/external-idp-user-api:build-cache,mode=max
+      #   - type=registry,ref=${DOCKER_REGISTRY:-docker.io}/linkedmink/external-idp-user-api:build-cache,mode=max
       additional_contexts:
         - homedir=${HOME:-.}
     profiles:

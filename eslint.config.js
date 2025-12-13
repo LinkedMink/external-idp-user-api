@@ -14,12 +14,4 @@ export default tsEslint.config(
       "@typescript-eslint/no-extraneous-class": "off",
     },
   },
-  {
-    files: ["types/**/*.ts"],
-    languageOptions: {
-      parserOptions: {
-        project: ["types/tsconfig.json"],
-      },
-    },
-  }
 );

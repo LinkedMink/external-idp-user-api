@@ -15,13 +15,13 @@ on:
 
 jobs:
   build:
-    uses: LinkedMink/.github/.github/workflows/build-npm-package.yml@main
+    uses: LinkedMink/.github/.github/workflows/build-npm-package.yml@v1
     with:
       upload-build: true
       # node-js-version: "22"
   upload:
     needs: build
-    uses: LinkedMink/.github/.github/workflows/publish-artifacts-for-tag.yml@main
+    uses: LinkedMink/.github/.github/workflows/publish-artifacts-for-tag.yml@v1
     with:
       upload-to-tag: ${{ github.event.inputs.upload-to-tag || github.ref_name }}
       uploaded-build-name: ${{ needs.build.outputs.uploaded-build-name }}

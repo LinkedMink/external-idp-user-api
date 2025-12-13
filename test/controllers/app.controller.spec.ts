@@ -1,7 +1,8 @@
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { Test, TestingModule } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
-import { TokenSigningService } from "../../src/services/token-signing.service.js";
 import { AppController } from "../../src/controllers/app.controller.js";
+import { TokenSigningService } from "../../src/services/token-signing.service.js";
 
 describe(AppController.name, () => {
   let testingModule: TestingModule;

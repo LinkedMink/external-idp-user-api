@@ -9,8 +9,8 @@ import { Command } from "commander";
 import { setTimeout } from "node:timers/promises";
 
 interface SetupCommandOptions {
-  passPostgres: string;
-  passApp: string;
+  passPostgres?: string;
+  passApp?: string;
 }
 
 export const setupCommand = new Command("setup")
@@ -18,20 +18,22 @@ export const setupCommand = new Command("setup")
   .option(
     "-p, --pass-postgres <string>",
     "Password for the 'postgres' user (random generated if not supplied)",
-    getRandomPass()
   )
   .option(
     "-a, --pass-app <string>",
     "Password for the 'external_idp' application user (random generated if not supplied)",
-    getRandomPass()
+    getRandomPass(),
   )
   .action(async (options: SetupCommandOptions) => {
     const logger = getLoggerByUrl(import.meta.url);
 
+    const postgresPassword = options.passPostgres ?? getRandomPass();
+    const postgresAppPassword = options.passApp ?? getRandomPass();
+
     await Promise.all([
-      writeEjsTemplate(".env.ejs", { postgresAppPassword: options.passApp }),
-      writeEjsTemplate("config/api-docker.env.ejs", { postgresAppPassword: options.passApp }),
-      writeEjsTemplate("config/postgres.env.ejs", { postgresAppPassword: options.passApp }),
+      writeEjsTemplate(".env.ejs", { postgresAppPassword }),
+      writeEjsTemplate("config/api-docker.env.ejs", { postgresAppPassword }),
+      writeEjsTemplate("config/postgres.env.ejs", { postgresAppPassword, postgresPassword }),
     ]);
 
     logger.info("Config files written, start background Docker containers");
@@ -40,11 +42,11 @@ export const setupCommand = new Command("setup")
 
     logger.info("Write signing private and public key");
 
-    await execIfFileNotExist("config/jws.secp521r1.key", path =>
-      spawnAsync("openssl", ["ecparam", "-genkey", "-name", "secp521r1", "-out", path])
+    await execIfFileNotExist("config/jws.secp521r1.key", (path) =>
+      spawnAsync("openssl", ["ecparam", "-genkey", "-name", "secp521r1", "-out", path]),
     );
-    await execIfFileNotExist("config/jws-public.secp521r1.key", path =>
-      spawnAsync("openssl", ["pkey", "-pubout", "-in", "config/jws.secp521r1.key", "-out", path])
+    await execIfFileNotExist("config/jws-public.secp521r1.key", (path) =>
+      spawnAsync("openssl", ["pkey", "-pubout", "-in", "config/jws.secp521r1.key", "-out", path]),
     );
 
     logger.info("Wait for DB ready to run Prisma migrations");

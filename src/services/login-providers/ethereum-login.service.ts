@@ -3,7 +3,6 @@ import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
 import { BadRequestException, ConsoleLogger, Inject, Injectable } from "@nestjs/common";
 import { ethers } from "ethers";
 import { randomBytes, randomUUID } from "node:crypto";
-import { isNativeError } from "node:util/types";
 import { LoginMethods } from "../../config/user.const.js";
 import { ValidationErrorDto } from "../../dto/errors.dto.js";
 import { EthereumLoginTransformedDto } from "../../schemas/login.schema.js";
@@ -22,7 +21,7 @@ export class EthereumLoginService {
     private readonly logger: ConsoleLogger,
     private readonly tokenSigningService: TokenSigningService,
     private readonly userService: UserService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {
     logger.setContext(EthereumLoginService.name);
   }
@@ -34,7 +33,7 @@ export class EthereumLoginService {
     await this.cacheManager.set(
       `${EthereumLoginService.RequestIdKeyPrefix}:${requestId}`,
       nonce,
-      EthereumLoginService.RequestIdTtlMs
+      EthereumLoginService.RequestIdTtlMs,
     );
 
     this.logger.debug(`Starting login with ID: ${requestId}, ${nonce}`);
@@ -58,7 +57,7 @@ export class EthereumLoginService {
 
     const user = await this.getUserRecord(dto.message.address);
 
-    const claims = Object.fromEntries(user.claims.map(c => [c.key, c.value]));
+    const claims = Object.fromEntries(user.claims.map((c) => [c.key, c.value]));
     const token = await this.tokenSigningService.sign(user.username, claims);
 
     await Promise.all([
@@ -92,7 +91,7 @@ export class EthereumLoginService {
       // TODO get allowed domains
       await verifyEip4361Message(message, { signature, nonce }, {});
     } catch (error) {
-      if (isNativeError(error)) {
+      if (error instanceof Error) {
         const verifyError: ValidationErrorDto = {
           formErrors: [error.message],
           fieldErrors: {},
