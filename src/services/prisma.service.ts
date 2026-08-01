@@ -6,19 +6,19 @@ import {
   OnModuleInit,
 } from "@nestjs/common";
 import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { loggingConfigLoad, LoggingConfigType } from "../config/logging.config.js";
 
 @Injectable()
-export class PrismaService
-  extends PrismaClient<{ log: { emit: "event"; level: Prisma.LogLevel }[] }>
-  implements OnModuleInit, OnApplicationShutdown
-{
+export class PrismaService extends PrismaClient implements OnModuleInit, OnApplicationShutdown {
   constructor(
     private readonly logger: ConsoleLogger,
     @Inject(loggingConfigLoad.KEY)
-    loggingConfig: LoggingConfigType
+    loggingConfig: LoggingConfigType,
   ) {
+    const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
     super({
+      adapter,
       log: [
         { emit: "event", level: "query" },
         { emit: "event", level: "info" },
@@ -29,11 +29,16 @@ export class PrismaService
 
     this.logger.setContext(PrismaService.name);
 
-    Array.from(loggingConfig.orderedLogLevelsMap).forEach(levelMapEntry => {
+    Array.from(loggingConfig.orderedLogLevelsMap).forEach((levelMapEntry) => {
       const [nestLevels, prismaLevel] = levelMapEntry[1];
       const nestLevel = nestLevels[nestLevels.length - 1];
-      this.$on(prismaLevel, event => {
-        if (isQueryEvent(event)) {
+      (
+        this.$on as <E extends Prisma.LogLevel>(
+          eventType: E,
+          callback: (event: E extends "query" ? Prisma.QueryEvent : Prisma.LogEvent) => void,
+        ) => void
+      )(prismaLevel, (event) => {
+        if ("query" in event) {
           this.logger[nestLevel]({
             message: event.query,
             duration: event.duration,
@@ -52,8 +57,4 @@ export class PrismaService
   onApplicationShutdown(_signal?: string) {
     return this.$disconnect();
   }
-}
-
-function isQueryEvent(event: Prisma.QueryEvent | Prisma.LogEvent): event is Prisma.QueryEvent {
-  return !!(event as Prisma.QueryEvent).query;
 }

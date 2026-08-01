@@ -8,7 +8,7 @@ export default {
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
     "@linkedmink/eip-4361-parser/zod":
-      "<rootDir>/node_modules/@linkedmink/eip-4361-parser/dist/cjs/zod/index.js",
+      "<rootDir>/node_modules/@linkedmink/eip-4361-parser/dist/zod/index.js",
   },
   testMatch: ["<rootDir>/test/**/*.(spec|test).ts"],
   transform: {
@@ -32,4 +32,5 @@ export default {
   // },
   reporters: [["github-actions", { silent: false }], "summary"],
   testEnvironment: "node",
+  transformIgnorePatterns: ["/node_modules/(?!(?:@linkedmink/eip-4361-parser|apg-lite)/)"],
 };
