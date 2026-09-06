@@ -9,14 +9,12 @@ FROM node-alpine AS dependencies
 USER node
 WORKDIR /home/node/app
 
-COPY --chown=node:node package.json package-lock.json tsconfig.json nest-cli.json ./
+COPY --chown=node:node package.json package-lock.json tsconfig.json nest-cli.json prisma.config.ts ./
 RUN --mount=type=cache,id=npm,target=/home/node/.npm/,uid=1000,gid=1000 \
     --mount=from=homedir,source=.npmrc,target=.npmrc \
     npm ci --loglevel info --cache /home/node/.npm
 
 COPY --chown=node:node ./prisma/ ./prisma/
-RUN npx prisma generate
-
 COPY --chown=node:node ./src/ ./src/
 
 ### Image for Dev Container

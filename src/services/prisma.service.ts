@@ -5,18 +5,29 @@ import {
   OnApplicationShutdown,
   OnModuleInit,
 } from "@nestjs/common";
-import { Prisma, PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { loggingConfigLoad, LoggingConfigType } from "../config/logging.config.js";
+import { Prisma, PrismaClient } from "../generated/prisma/client.js";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnApplicationShutdown {
+  private static readonly SchemaName = "external_idp";
+
   constructor(
     private readonly logger: ConsoleLogger,
     @Inject(loggingConfigLoad.KEY)
     loggingConfig: LoggingConfigType,
   ) {
-    const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+    // TODO Inject database config
+    const adapter = new PrismaPg(
+      {
+        connectionString: process.env.DATABASE_URL,
+      },
+      {
+        schema: PrismaService.SchemaName,
+      },
+    );
+
     super({
       adapter,
       log: [

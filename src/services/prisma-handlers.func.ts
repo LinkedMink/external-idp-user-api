@@ -1,6 +1,6 @@
 import { ConflictException, NotFoundException } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
 import { ValidationErrorDto } from "../dto/errors.dto.js";
+import { Prisma } from "../generated/prisma/client.js";
 
 /**
  * @see https://www.prisma.io/docs/orm/reference/error-reference#error-codes
@@ -37,7 +37,7 @@ export async function resolveOrHandleDbError<T>(
     return await resultPromise;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      errorHandlers.forEach(handler => handler(error));
+      errorHandlers.forEach((handler) => handler(error));
     }
 
     throw error;

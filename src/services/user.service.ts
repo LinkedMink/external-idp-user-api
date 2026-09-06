@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
 import { Claims, DEFAULT_MODIFIED_BY, LoginMethod } from "../config/user.const.js";
+import { Prisma } from "../generated/prisma/client.js";
 import { IdDbModel, UserClaimsDbModel } from "../interfaces/db.types.js";
 import { UserCreateTransformedDto, UserUpdateTransformedDto } from "../schemas/user.schema.js";
 import { PasswordService } from "./password.service.js";
@@ -22,7 +22,7 @@ export class UserService {
 
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly passwordService: PasswordService
+    private readonly passwordService: PasswordService,
   ) {}
 
   findById(id: number): Promise<UserClaimsDbModel> {
@@ -39,7 +39,7 @@ export class UserService {
 
   async create(
     dto: UserCreateTransformedDto,
-    modifiedBy = DEFAULT_MODIFIED_BY
+    modifiedBy = DEFAULT_MODIFIED_BY,
   ): Promise<UserClaimsDbModel> {
     const password = await this.passwordService.createHash(dto.password);
     const resultPromise = this.prismaService.user.create({
@@ -62,7 +62,7 @@ export class UserService {
   async createByProvider(
     username: string,
     loginMethod: LoginMethod,
-    claims: Record<string, string> = {}
+    claims: Record<string, string> = {},
   ): Promise<UserClaimsDbModel> {
     const modifiedBy = `${loginMethod}(${username})`;
     const resultPromise = this.prismaService.user.create({
@@ -86,7 +86,7 @@ export class UserService {
   async updateById(
     id: number,
     dto: UserUpdateTransformedDto,
-    modifiedBy = DEFAULT_MODIFIED_BY
+    modifiedBy = DEFAULT_MODIFIED_BY,
   ): Promise<UserClaimsDbModel> {
     const password = dto.password ? await this.passwordService.createHash(dto.password) : undefined;
     const claims: Prisma.UserClaimUpdateManyWithoutUserNestedInput | undefined = dto.claims

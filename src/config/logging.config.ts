@@ -1,8 +1,8 @@
 import type { LogLevel as NestLogLevel } from "@nestjs/common";
 import { ConfigType, registerAs } from "@nestjs/config";
-import type { Prisma } from "@prisma/client";
 import { config } from "winston";
 import { z } from "zod";
+import type { Prisma } from "../generated/prisma/client.js";
 import { stringToJsonSchema } from "../schemas/json.schema.js";
 
 export const LogLevels = {
@@ -28,14 +28,14 @@ const loggingConfigSchema = stringToJsonSchema.optional().pipe(
       defaultContext: z.string().min(1).default("App"),
       isStackTraceLogged: z.boolean().default(process.env.NODE_ENV !== "production"),
     })
-    .transform(config => ({
+    .transform((config) => ({
       ...config,
       orderedLogLevelsMap: OrderedLogLevelsMap,
-    }))
+    })),
 );
 
 export const loggingConfigLoad = registerAs("logging", () =>
-  loggingConfigSchema.parse(process.env.LOGGING)
+  loggingConfigSchema.parse(process.env.LOGGING),
 );
 
 export type LoggingConfigType = ConfigType<typeof loggingConfigLoad>;

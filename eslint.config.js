@@ -1,9 +1,9 @@
 // @ts-check
 
 import { flatConfig } from "@linkedmink/eslint-config";
-import tsEslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
 
-export default tsEslint.config(
+export default defineConfig(
   {
     ignores: ["test/app.e2e-spec.ts"],
   },
