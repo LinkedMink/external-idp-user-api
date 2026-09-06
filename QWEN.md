@@ -5,7 +5,7 @@ NestJS-based identity provider gateway service that verifies external ID tokens 
 ## Tech Stack
 
 - **Runtime:** Node.js 24 (ESM), TypeScript ^5.9.3
-- **Framework:** NestJS 11
+- **Framework:** NestJS 12
 - **Database:** PostgreSQL 17 (via Prisma 7 + `@prisma/adapter-pg`)
 - **Cache:** Valkey/Redis 8 (via Keyv + cache-manager)
 - **Auth:** EIP-4361 (ethers.js v6), JWS signing (jose), password hashing
@@ -138,7 +138,8 @@ When updating dependencies, follow this procedure:
 
 - **typescript-eslint v8** requires `eslint ^8.57.0 || ^9.0.0 || ^10.0.0` AND `typescript >=4.8.4 <6.1.0`. Use `typescript-eslint ^8.63.0+` for ESLint 10 support. TypeScript 7 is blocked until typescript-eslint v9 is released.
 - **Prisma 7** requires `prisma.config.ts` for datasource configuration (connection URLs and adapters); the `url` property is removed from `schema.prisma`. Use `@prisma/adapter-pg` with `PrismaPg` class — pass `{ adapter: new PrismaPg({ connectionString }) }` to the PrismaClient constructor. The `$on` method requires a type assertion when extending PrismaClient because the generic log event type defaults to `never`.
-- **ESM-only packages** in `node_modules` (e.g., `@linkedmink/eip-4361-parser`, `apg-lite`) require Jest `transformIgnorePatterns`: `["/node_modules/(?!(?:@linkedmink/eip-4361-parser|apg-lite)/)"]`.
+- **NestJS 12 is ESM-only** — `@nestjs/core`, `@nestjs/common`, `@nestjs/platform-express`, and `@nestjs/testing` ship `"type": "module"` with no CJS build (`@nestjs/config` and `@nestjs/cache-manager` remain dual). The app itself builds to ESM via `nest build` and runs fine under Node 24; only the Jest CJS runtime is affected.
+- **Jest runs with `--experimental-vm-modules`** — the test scripts in `package.json` set `NODE_OPTIONS="--experimental-vm-modules --disable-warning=ExperimentalWarning"`. This exposes `vm.SourceTextModule`, which Jest 30 requires for its native `require(esm)` fallback (Node 24.9+) so CJS-compiled test files can load the ESM-only packages. Do NOT add `transformIgnorePatterns` exceptions for ESM-only `node_modules` packages (e.g., `@linkedmink/eip-4361-parser`, `apg-lite`): ts-jest's CJS output evaluated in an ESM scope fails with `ReferenceError: exports is not defined`. They load natively now.
 - **Subpath imports** (`package/subpath`) need both `moduleNameMapper` in `jest.config.js` and matching paths in `test/tsconfig.json` — always verify the actual file location in the package's `exports` field.
 
 ## Key Configuration

@@ -32,5 +32,4 @@ export default {
   // },
   reporters: [["github-actions", { silent: false }], "summary"],
   testEnvironment: "node",
-  transformIgnorePatterns: ["/node_modules/(?!(?:@linkedmink/eip-4361-parser|apg-lite)/)"],
 };
