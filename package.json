@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@keyv/redis": "^5.1.6",
-    "@linkedmink/eip-4361-parser": "^2.0.0-0",
+    "@linkedmink/eip-4361-parser": "^2.0.0",
     "@nestjs/cache-manager": "^12.0.0",
     "@nestjs/common": "^12.0.1",
     "@nestjs/config": "^12.0.0",
@@ -72,7 +72,7 @@
   "devDependencies": {
     "@dotenvx/dotenvx": "^2.1.5",
     "@linkedmink/eslint-config": "^1.1.0",
-    "@linkedmink/node-cli-utilities": "^2.0.0-0",
+    "@linkedmink/node-cli-utilities": "^2.0.0",
     "@nestjs/cli": "^12.0.0",
     "@nestjs/schematics": "^12.0.0",
     "@nestjs/testing": "^12.0.1",
